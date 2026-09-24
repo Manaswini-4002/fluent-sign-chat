@@ -14,7 +14,141 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      conversation_messages: {
+        Row: {
+          confidence: number | null
+          content: string
+          created_at: string
+          id: string
+          session_id: string
+          speaker: string
+          user_id: string
+        }
+        Insert: {
+          confidence?: number | null
+          content: string
+          created_at?: string
+          id?: string
+          session_id: string
+          speaker: string
+          user_id: string
+        }
+        Update: {
+          confidence?: number | null
+          content?: string
+          created_at?: string
+          id?: string
+          session_id?: string
+          speaker?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      emergency_contacts: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          relation: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          relation?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          relation?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      emergency_events: {
+        Row: {
+          accuracy_m: number | null
+          created_at: string
+          gesture: string | null
+          id: string
+          latitude: number | null
+          location_error: string | null
+          longitude: number | null
+          message: string | null
+          notification_status: string
+          resolved: boolean
+          share_token: string
+          trigger_type: string
+          user_id: string
+        }
+        Insert: {
+          accuracy_m?: number | null
+          created_at?: string
+          gesture?: string | null
+          id?: string
+          latitude?: number | null
+          location_error?: string | null
+          longitude?: number | null
+          message?: string | null
+          notification_status?: string
+          resolved?: boolean
+          share_token?: string
+          trigger_type?: string
+          user_id: string
+        }
+        Update: {
+          accuracy_m?: number | null
+          created_at?: string
+          gesture?: string | null
+          id?: string
+          latitude?: number | null
+          location_error?: string | null
+          longitude?: number | null
+          message?: string | null
+          notification_status?: string
+          resolved?: boolean
+          share_token?: string
+          trigger_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          emergency_gesture: string
+          full_name: string | null
+          id: string
+          role: string
+          share_location: boolean
+        }
+        Insert: {
+          created_at?: string
+          emergency_gesture?: string
+          full_name?: string | null
+          id: string
+          role?: string
+          share_location?: boolean
+        }
+        Update: {
+          created_at?: string
+          emergency_gesture?: string
+          full_name?: string | null
+          id?: string
+          role?: string
+          share_location?: boolean
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
