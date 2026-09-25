@@ -14,7 +14,9 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as AuthenticatedConversationRouteImport } from './routes/_authenticated/conversation'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedEmergencyRouteImport } from './routes/_authenticated/emergency'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedTranslateRouteImport } from './routes/_authenticated/translate'
 import { Route as EmergencyTokenRouteImport } from './routes/emergency.$token'
 
@@ -43,9 +45,19 @@ const AuthenticatedConversationRoute =
     path: '/conversation',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedEmergencyRoute = AuthenticatedEmergencyRouteImport.update({
   id: '/emergency',
   path: '/emergency',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedTranslateRoute = AuthenticatedTranslateRouteImport.update({
@@ -64,7 +76,9 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/conversation': typeof AuthenticatedConversationRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/emergency': typeof AuthenticatedEmergencyRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/translate': typeof AuthenticatedTranslateRoute
   '/emergency/$token': typeof EmergencyTokenRoute
 }
@@ -73,7 +87,9 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/conversation': typeof AuthenticatedConversationRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/emergency': typeof AuthenticatedEmergencyRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/translate': typeof AuthenticatedTranslateRoute
   '/emergency/$token': typeof EmergencyTokenRoute
 }
@@ -84,7 +100,9 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/_authenticated/conversation': typeof AuthenticatedConversationRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/emergency': typeof AuthenticatedEmergencyRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/translate': typeof AuthenticatedTranslateRoute
   '/emergency/$token': typeof EmergencyTokenRoute
 }
@@ -95,7 +113,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/conversation'
+    | '/dashboard'
     | '/emergency'
+    | '/settings'
     | '/translate'
     | '/emergency/$token'
   fileRoutesByTo: FileRoutesByTo
@@ -104,7 +124,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/conversation'
+    | '/dashboard'
     | '/emergency'
+    | '/settings'
     | '/translate'
     | '/emergency/$token'
   id:
@@ -114,7 +136,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/_authenticated/conversation'
+    | '/_authenticated/dashboard'
     | '/_authenticated/emergency'
+    | '/_authenticated/settings'
     | '/_authenticated/translate'
     | '/emergency/$token'
   fileRoutesById: FileRoutesById
@@ -164,11 +188,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConversationRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/emergency': {
       id: '/_authenticated/emergency'
       path: '/emergency'
       fullPath: '/emergency'
       preLoaderRoute: typeof AuthenticatedEmergencyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/translate': {
@@ -190,13 +228,17 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedConversationRoute: typeof AuthenticatedConversationRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedEmergencyRoute: typeof AuthenticatedEmergencyRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedTranslateRoute: typeof AuthenticatedTranslateRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedConversationRoute: AuthenticatedConversationRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedEmergencyRoute: AuthenticatedEmergencyRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedTranslateRoute: AuthenticatedTranslateRoute,
 }
 
