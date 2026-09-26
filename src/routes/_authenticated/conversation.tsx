@@ -60,7 +60,15 @@ function ConversationPage() {
 
   const addEntry = useCallback(
     (speaker: Entry["speaker"], content: string, confidence?: number) => {
-      setTranscript((t) => [...t, { speaker, content, confidence, at: new Date().toLocaleTimeString() }]);
+      setTranscript((t) => [
+        ...t,
+        {
+          speaker,
+          content,
+          at: new Date().toLocaleTimeString(),
+          ...(confidence === undefined ? {} : { confidence }),
+        },
+      ]);
       void persist(speaker, content, confidence);
     },
     [persist],
