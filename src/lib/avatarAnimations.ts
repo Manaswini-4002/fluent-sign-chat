@@ -194,7 +194,7 @@ function lerp(a: number, b: number, t: number) {
 }
 
 function lerpTuple<T extends number[]>(a: T, b: T, t: number): T {
-  return a.map((v, i) => lerp(v, b[i], t)) as T;
+  return a.map((v, i) => lerp(v, b[i] ?? v, t)) as T;
 }
 
 export interface SampledPose {
