@@ -140,7 +140,7 @@ export function SignAvatar({
 }: {
   sign: SignId | null;
   playToken: number;
-  onFinished?: () => void;
+  onFinished?: (() => void) | undefined;
 }) {
   const key = useMemo(() => `${sign ?? "rest"}-${playToken}`, [sign, playToken]);
   return (
