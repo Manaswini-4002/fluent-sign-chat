@@ -21,6 +21,10 @@ export interface Keyframe {
   leftShoulder?: [number, number, number];
   leftElbow?: [number, number, number];
   leftCurl?: [number, number, number, number, number];
+  /** finger splay 0 (together) .. 1 (spread) */
+  spread?: number;
+  /** thumb position 0 (out to the side) .. 1 (tucked across the palm) */
+  thumb?: number;
 }
 
 export interface SignClip {
@@ -205,6 +209,8 @@ export interface SampledPose {
   leftShoulder: [number, number, number];
   leftElbow: [number, number, number];
   leftCurl: [number, number, number, number, number];
+  spread: number;
+  thumb: number;
 }
 
 const REST_LEFT_SHOULDER: [number, number, number] = [0.1, 0, -0.12];
@@ -228,6 +234,8 @@ export function samplePose(clip: SignClip, time: number): SampledPose {
     curl: lerpTuple(a.curl, b.curl, k),
     leftShoulder: lerpTuple(a.leftShoulder ?? REST_LEFT_SHOULDER, b.leftShoulder ?? REST_LEFT_SHOULDER, k),
     leftElbow: lerpTuple(a.leftElbow ?? REST_LEFT_ELBOW, b.leftElbow ?? REST_LEFT_ELBOW, k),
+    spread: lerp(a.spread ?? 0.35, b.spread ?? 0.35, k),
+    thumb: lerp(a.thumb ?? 0.2, b.thumb ?? 0.2, k),
     leftCurl: lerpTuple(a.leftCurl ?? [0.15, 0.15, 0.15, 0.15, 0.15], b.leftCurl ?? [0.15, 0.15, 0.15, 0.15, 0.15], k),
   };
 }
