@@ -97,8 +97,9 @@ export function useHandTracking(options: Options = {}) {
         const hands = (result.landmarks ?? []) as Hand[];
         setHandsVisible(hands.length);
 
-        if (hands.length > 0) {
-          motionRef.current.push({ x: hands[0][0].x, y: hands[0][0].y });
+        const primaryWrist = hands[0]?.[0];
+        if (primaryWrist) {
+          motionRef.current.push({ x: primaryWrist.x, y: primaryWrist.y });
         } else {
           motionRef.current.reset();
         }
@@ -145,9 +146,12 @@ function drawOverlay(canvas: HTMLCanvasElement | null, video: HTMLVideoElement, 
   for (const hand of hands) {
     ctx.strokeStyle = "rgba(94, 234, 212, 0.9)";
     for (const [a, b] of HAND_CONNECTIONS) {
+      const pa = hand[a];
+      const pb = hand[b];
+      if (!pa || !pb) continue;
       ctx.beginPath();
-      ctx.moveTo(hand[a].x * w, hand[a].y * h);
-      ctx.lineTo(hand[b].x * w, hand[b].y * h);
+      ctx.moveTo(pa.x * w, pa.y * h);
+      ctx.lineTo(pb.x * w, pb.y * h);
       ctx.stroke();
     }
     ctx.fillStyle = "rgba(216, 180, 254, 0.95)";

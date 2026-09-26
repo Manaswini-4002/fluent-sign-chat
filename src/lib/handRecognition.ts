@@ -44,21 +44,22 @@ export interface HandFeatures {
 }
 
 export function extractFeatures(hand: Hand): HandFeatures {
-  const wrist = hand[0];
-  const scale = Math.max(dist(wrist, hand[9]), 1e-4);
+  const p = (i: number): Landmark => hand[i] ?? { x: 0, y: 0, z: 0 };
+  const wrist = p(0);
+  const scale = Math.max(dist(wrist, p(9)), 1e-4);
   const extended = TIPS.map((tip, i) => {
     if (i === 0) {
       // thumb: lateral distance from index MCP
-      return dist(hand[4], hand[5]) / scale > 0.75;
+      return dist(p(4), p(5)) / scale > 0.75;
     }
-    return dist(wrist, hand[tip]) > dist(wrist, hand[PIPS[i]]) * 1.12;
+    return dist(wrist, p(tip)) > dist(wrist, p(PIPS[i] ?? tip)) * 1.12;
   });
 
   const centroid = TIPS.reduce(
     (acc, tip) => ({
-      x: acc.x + hand[tip].x / TIPS.length,
-      y: acc.y + hand[tip].y / TIPS.length,
-      z: acc.z + hand[tip].z / TIPS.length,
+      x: acc.x + p(tip).x / TIPS.length,
+      y: acc.y + p(tip).y / TIPS.length,
+      z: acc.z + p(tip).z / TIPS.length,
     }),
     { x: 0, y: 0, z: 0 },
   );
@@ -67,7 +68,7 @@ export function extractFeatures(hand: Hand): HandFeatures {
   let pairs = 0;
   for (let i = 0; i < TIPS.length; i++) {
     for (let j = i + 1; j < TIPS.length; j++) {
-      pairSum += dist(hand[TIPS[i]], hand[TIPS[j]]) / scale;
+      pairSum += dist(p(TIPS[i] ?? 0), p(TIPS[j] ?? 0)) / scale;
       pairs++;
     }
   }
@@ -79,10 +80,10 @@ export function extractFeatures(hand: Hand): HandFeatures {
     scale,
     centroid,
     wrist,
-    indexMiddleGap: dist(hand[8], hand[12]) / scale,
+    indexMiddleGap: dist(p(8), p(12)) / scale,
     pinch: avgPairGap,
-    pointUp: (wrist.y - hand[12].y) / scale,
-    indexTip: hand[8],
+    pointUp: (wrist.y - p(12).y) / scale,
+    indexTip: p(8),
   };
 }
 
@@ -110,8 +111,10 @@ export class MotionTracker {
     let lat = 0;
     let vert = 0;
     for (let i = 1; i < this.history.length; i++) {
-      lat += Math.abs(this.history[i].x - this.history[i - 1].x);
-      vert += Math.abs(this.history[i].y - this.history[i - 1].y);
+      const cur = this.history[i]!;
+      const prev = this.history[i - 1]!;
+      lat += Math.abs(cur.x - prev.x);
+      vert += Math.abs(cur.y - prev.y);
     }
     const n = this.history.length - 1;
     return { lateral: lat / n, vertical: vert / n, speed: (lat + vert) / n };
@@ -131,8 +134,8 @@ export function classifyFrame(hands: Hand[], motion: MotionSignals): FrameResult
     const fistIdx = feats.findIndex((f) => f.extendedCount <= 1);
     const openIdx = feats.findIndex((f) => f.extendedCount >= 4);
     if (fistIdx !== -1 && openIdx !== -1 && fistIdx !== openIdx) {
-      const fist = feats[fistIdx];
-      const open = feats[openIdx];
+      const fist = feats[fistIdx]!;
+      const open = feats[openIdx]!;
       const above = open.centroid.y - fist.centroid.y; // y grows downward
       const horizontalOverlap = Math.abs(open.centroid.x - fist.centroid.x) < 0.22;
       if (above > 0.02 && horizontalOverlap) {
