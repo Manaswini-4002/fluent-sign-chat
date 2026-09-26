@@ -214,9 +214,9 @@ export function samplePose(clip: SignClip, time: number): SampledPose {
   const frames = clip.frames;
   const t = Math.min(time, clip.duration);
   let i = 0;
-  while (i < frames.length - 2 && frames[i + 1].t < t) i++;
-  const a = frames[i];
-  const b = frames[Math.min(i + 1, frames.length - 1)];
+  while (i < frames.length - 2 && (frames[i + 1]?.t ?? Infinity) < t) i++;
+  const a = frames[i]!;
+  const b = frames[Math.min(i + 1, frames.length - 1)]!;
   const span = Math.max(b.t - a.t, 1e-3);
   const raw = Math.min(Math.max((t - a.t) / span, 0), 1);
   const k = raw * raw * (3 - 2 * raw); // smoothstep
