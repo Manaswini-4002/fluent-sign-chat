@@ -44,21 +44,22 @@ export interface HandFeatures {
 }
 
 export function extractFeatures(hand: Hand): HandFeatures {
-  const wrist = hand[0];
-  const scale = Math.max(dist(wrist, hand[9]), 1e-4);
+  const p = (i: number): Landmark => hand[i] ?? { x: 0, y: 0, z: 0 };
+  const wrist = p(0);
+  const scale = Math.max(dist(wrist, p(9)), 1e-4);
   const extended = TIPS.map((tip, i) => {
     if (i === 0) {
       // thumb: lateral distance from index MCP
-      return dist(hand[4], hand[5]) / scale > 0.75;
+      return dist(p(4), p(5)) / scale > 0.75;
     }
-    return dist(wrist, hand[tip]) > dist(wrist, hand[PIPS[i]]) * 1.12;
+    return dist(wrist, p(tip)) > dist(wrist, p(PIPS[i] ?? tip)) * 1.12;
   });
 
   const centroid = TIPS.reduce(
     (acc, tip) => ({
-      x: acc.x + hand[tip].x / TIPS.length,
-      y: acc.y + hand[tip].y / TIPS.length,
-      z: acc.z + hand[tip].z / TIPS.length,
+      x: acc.x + p(tip).x / TIPS.length,
+      y: acc.y + p(tip).y / TIPS.length,
+      z: acc.z + p(tip).z / TIPS.length,
     }),
     { x: 0, y: 0, z: 0 },
   );
@@ -67,7 +68,7 @@ export function extractFeatures(hand: Hand): HandFeatures {
   let pairs = 0;
   for (let i = 0; i < TIPS.length; i++) {
     for (let j = i + 1; j < TIPS.length; j++) {
-      pairSum += dist(hand[TIPS[i]], hand[TIPS[j]]) / scale;
+      pairSum += dist(p(TIPS[i] ?? 0), p(TIPS[j] ?? 0)) / scale;
       pairs++;
     }
   }
@@ -79,10 +80,10 @@ export function extractFeatures(hand: Hand): HandFeatures {
     scale,
     centroid,
     wrist,
-    indexMiddleGap: dist(hand[8], hand[12]) / scale,
+    indexMiddleGap: dist(p(8), p(12)) / scale,
     pinch: avgPairGap,
-    pointUp: (wrist.y - hand[12].y) / scale,
-    indexTip: hand[8],
+    pointUp: (wrist.y - p(12).y) / scale,
+    indexTip: p(8),
   };
 }
 
