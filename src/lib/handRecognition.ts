@@ -111,8 +111,10 @@ export class MotionTracker {
     let lat = 0;
     let vert = 0;
     for (let i = 1; i < this.history.length; i++) {
-      lat += Math.abs(this.history[i].x - this.history[i - 1].x);
-      vert += Math.abs(this.history[i].y - this.history[i - 1].y);
+      const cur = this.history[i]!;
+      const prev = this.history[i - 1]!;
+      lat += Math.abs(cur.x - prev.x);
+      vert += Math.abs(cur.y - prev.y);
     }
     const n = this.history.length - 1;
     return { lateral: lat / n, vertical: vert / n, speed: (lat + vert) / n };
