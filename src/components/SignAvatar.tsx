@@ -79,7 +79,7 @@ function AvatarRig({
 }: {
   sign: SignId | null;
   playToken: number;
-  onFinished?: () => void;
+  onFinished?: (() => void) | undefined;
 }) {
   const clip = sign ? SIGN_CLIPS[sign] : undefined;
   const [pose, setPose] = useState<SampledPose>(REST_POSE);
