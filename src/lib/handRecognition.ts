@@ -134,8 +134,8 @@ export function classifyFrame(hands: Hand[], motion: MotionSignals): FrameResult
     const fistIdx = feats.findIndex((f) => f.extendedCount <= 1);
     const openIdx = feats.findIndex((f) => f.extendedCount >= 4);
     if (fistIdx !== -1 && openIdx !== -1 && fistIdx !== openIdx) {
-      const fist = feats[fistIdx];
-      const open = feats[openIdx];
+      const fist = feats[fistIdx]!;
+      const open = feats[openIdx]!;
       const above = open.centroid.y - fist.centroid.y; // y grows downward
       const horizontalOverlap = Math.abs(open.centroid.x - fist.centroid.x) < 0.22;
       if (above > 0.02 && horizontalOverlap) {
