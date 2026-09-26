@@ -137,7 +137,7 @@ export const SIGN_BY_ID: Record<SignId, SignDefinition> = Object.fromEntries(
   SIGNS.map((s) => [s.id, s]),
 ) as Record<SignId, SignDefinition>;
 
-const WORD_TO_SIGN = new Map<string, SignId>();
+export const WORD_TO_SIGN = new Map<string, SignId>();
 for (const sign of SIGNS) {
   for (const word of sign.synonyms) WORD_TO_SIGN.set(word, sign.id);
 }
