@@ -1,5 +1,5 @@
 import { Mic, MicOff, Play, RotateCcw, Square } from "lucide-react";
-import { useCallback, useRef, useState, lazy, Suspense } from "react";
+import { useCallback, useEffect, useRef, useState, lazy, Suspense } from "react";
 import { ClientOnly } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
@@ -47,6 +47,8 @@ export function SpeechToSign({ onTranscript }: { onTranscript?: (text: string, s
   const [letter, setLetter] = useState<string | null>(null);
   const startedAt = useRef(0);
   const lastText = useRef("");
+  const queueRef = useRef<QueueItem[]>([]);
+  const indexRef = useRef(0);
 
   const playing = index < queue.length;
   const current = playing ? queue[index]! : null;
@@ -64,49 +66,46 @@ export function SpeechToSign({ onTranscript }: { onTranscript?: (text: string, s
         );
       }
       // Real-time: new speech is appended so the avatar keeps signing continuously.
-      setQueue((q) => {
-        setIndex((i) => {
-          const base = i >= q.length ? [] : q;
-          if (base.length === 0) {
-            startedAt.current = performance.now();
-            setPlayToken((n) => n + 1);
-            return 0;
-          }
-          return i;
-        });
-        const active = q.filter((_, k) => k >= 0);
-        return index >= q.length ? items : [...active, ...items];
-      });
+      if (replay || indexRef.current >= queueRef.current.length) {
+        queueRef.current = items;
+        indexRef.current = 0;
+        startedAt.current = performance.now();
+        setPlayToken((n) => n + 1);
+      } else {
+        queueRef.current = [...queueRef.current, ...items];
+      }
+      setQueue(queueRef.current);
+      setIndex(indexRef.current);
     },
-    [onTranscript, index],
+    [onTranscript],
   );
 
   const { supported, listening, interim, error, start, stop } = useSpeechRecognition((final) => handleText(final));
 
   const onClipFinished = () => {
     setLetter(null);
-    setIndex((i) => i + 1);
+    indexRef.current += 1;
+    setIndex(indexRef.current);
     startedAt.current = performance.now();
     setPlayToken((n) => n + 1);
   };
 
   // Caption the current fingerspelled letter.
-  const tick = useRef<number | null>(null);
-  if (typeof window !== "undefined" && current?.letters && tick.current === null) {
-    tick.current = window.setInterval(() => {
+  useEffect(() => {
+    const ls = current?.letters;
+    if (!ls) return;
+    const id = window.setInterval(() => {
       const t = ((performance.now() - startedAt.current) / 1000) * speed;
-      const ls = current.letters ?? [];
       let ch: string | null = null;
       for (const l of ls) if (t >= l.t) ch = l.ch;
       setLetter(ch);
     }, 60);
-  }
-  if (tick.current !== null && !current?.letters) {
-    window.clearInterval(tick.current);
-    tick.current = null;
-  }
+    return () => window.clearInterval(id);
+  }, [current, speed]);
 
   const stopSigning = () => {
+    queueRef.current = [];
+    indexRef.current = 0;
     setQueue([]);
     setIndex(0);
     setLetter(null);
@@ -125,7 +124,6 @@ export function SpeechToSign({ onTranscript }: { onTranscript?: (text: string, s
           <ClientOnly fallback={<div className="grid h-full place-items-center text-sm text-muted-foreground">Loading avatar…</div>}>
             <Suspense fallback={<div className="grid h-full place-items-center text-sm text-muted-foreground">Loading avatar…</div>}>
               <SignAvatar
-                key={index}
                 clip={current?.clip ?? null}
                 playToken={playToken}
                 speed={speed}
