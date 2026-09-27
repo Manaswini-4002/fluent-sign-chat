@@ -17,8 +17,10 @@ function twilioConfigured() {
 }
 
 function resendConfigured() {
-  return Boolean(process.env["RESEND_API_KEY"] && process.env["EMERGENCY_FROM_EMAIL"]);
+  return Boolean(process.env["RESEND_API_KEY"] && process.env["LOVABLE_API_KEY"]);
 }
+
+const RESEND_GATEWAY = "https://connector-gateway.lovable.dev/resend";
 
 export const getNotifierStatus = createServerFn({ method: "GET" }).handler(async () => ({
   sms: twilioConfigured(),
