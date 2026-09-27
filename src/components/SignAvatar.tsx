@@ -43,7 +43,7 @@ function Hand({ curl, spread, thumb, mirrored = false }: { curl: number[]; sprea
   const m = mirrored ? -1 : 1;
   const lengths = [0.09, 0.1, 0.108, 0.1, 0.082];
   return (
-    <group position={[0, -0.03, 0]}>
+    <group position={[0, -0.03, 0]} scale={1.3}>
       {/* palm */}
       <mesh position={[0, -0.055, 0]} castShadow>
         <boxGeometry args={[0.1, 0.11, 0.035]} />
@@ -98,7 +98,7 @@ function Arm({
           <meshStandardMaterial color={SKIN} roughness={0.55} />
         </mesh>
         <group position={[0, -0.32, 0]} rotation={[wrist[0], wrist[1], -wrist[2] * sign]}>
-          <Hand curl={curl} spread={spread} thumb={thumb} mirrored={side === "left"} />
+          <Hand curl={curl} spread={spread} thumb={thumb} mirrored={side === "right"} />
         </group>
       </group>
     </group>
@@ -114,7 +114,7 @@ function AvatarRig({ clip, speed, onFinished }: { clip: SignClip | null; speed: 
   useFrame((state) => {
     if (bodyRef.current) {
       bodyRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.4) * 0.04;
-      bodyRef.current.position.y = -0.35 + Math.sin(state.clock.elapsedTime * 1.1) * 0.008;
+      bodyRef.current.position.y = -0.5 + Math.sin(state.clock.elapsedTime * 1.1) * 0.008;
     }
     if (!clip) {
       setPose(REST_POSE);
@@ -179,7 +179,7 @@ export function SignAvatar({
   onFinished?: (() => void) | undefined;
 }) {
   return (
-    <Canvas shadows camera={{ position: [0, 0.45, 1.9], fov: 40 }} dpr={[1, 2]}>
+    <Canvas shadows camera={{ position: [0, 0.3, 2.0], fov: 40 }} dpr={[1, 2]}>
       <color attach="background" args={["#0f1720"]} />
       <ambientLight intensity={0.75} />
       <directionalLight position={[2, 3, 3]} intensity={1.3} castShadow />
