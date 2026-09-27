@@ -179,7 +179,7 @@ export function SignAvatar({
   onFinished?: (() => void) | undefined;
 }) {
   return (
-    <Canvas shadows camera={{ position: [0, 0.3, 2.0], fov: 40 }} dpr={[1, 2]}>
+    <Canvas shadows camera={{ position: [0, 0.5, 2.1], fov: 40 }} dpr={[1, 2]}>
       <color attach="background" args={["#0f1720"]} />
       <ambientLight intensity={0.75} />
       <directionalLight position={[2, 3, 3]} intensity={1.3} castShadow />
