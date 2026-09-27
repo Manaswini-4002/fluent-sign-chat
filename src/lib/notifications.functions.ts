@@ -17,8 +17,10 @@ function twilioConfigured() {
 }
 
 function resendConfigured() {
-  return Boolean(process.env["RESEND_API_KEY"] && process.env["EMERGENCY_FROM_EMAIL"]);
+  return Boolean(process.env["RESEND_API_KEY"] && process.env["LOVABLE_API_KEY"]);
 }
+
+const RESEND_GATEWAY = "https://connector-gateway.lovable.dev/resend";
 
 export const getNotifierStatus = createServerFn({ method: "GET" }).handler(async () => ({
   sms: twilioConfigured(),
@@ -75,21 +77,23 @@ export const sendEmergencyAlert = createServerFn({ method: "POST" })
         else failures.push(`SMS to ${contact.name}: ${res.status}`);
       }
       if (email && contact.email) {
-        const res = await fetch("https://api.resend.com/emails", {
+        const from = process.env["EMERGENCY_FROM_EMAIL"] ?? "SignBridge AI <onboarding@resend.dev>";
+        const res = await fetch(`${RESEND_GATEWAY}/emails`, {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${process.env["RESEND_API_KEY"]}`,
+            Authorization: `Bearer ${process.env["LOVABLE_API_KEY"]}`,
+            "X-Connection-Api-Key": process.env["RESEND_API_KEY"]!,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            from: process.env["EMERGENCY_FROM_EMAIL"],
+            from,
             to: [contact.email],
             subject: "Emergency alert from SignBridge AI",
             text: body,
           }),
         });
         if (res.ok) delivered++;
-        else failures.push(`Email to ${contact.name}: ${res.status}`);
+        else failures.push(`Email to ${contact.name}: ${res.status} ${await res.text()}`);
       }
     }
 
