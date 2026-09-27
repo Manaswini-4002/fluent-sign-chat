@@ -24,8 +24,8 @@ interface Handshape {
 }
 
 /** Dominant-hand fingerspelling position: forearm up, hand beside the shoulder. */
-export const FS_SHOULDER: V3 = [-0.55, 0, 0.32];
-export const FS_ELBOW: V3 = [-1.85, 0, 0];
+export const FS_SHOULDER: V3 = [-0.35, 0, 0.3];
+export const FS_ELBOW: V3 = [-2.45, 0, 0];
 const FS_WRIST: V3 = [0, 0, 0];
 const SIDEWAYS: V3 = [0, 0, 1.45];
 const DOWN: V3 = [1.3, 0, 0];
