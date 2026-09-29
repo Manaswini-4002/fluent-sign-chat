@@ -94,10 +94,14 @@ function EmergencyPage() {
     setNotifyResult(null);
     let location: Awaited<ReturnType<typeof getCurrentPosition>> | null = null;
     let locationError: string | null = null;
-    try {
-      location = await getCurrentPosition();
-    } catch (e) {
-      locationError = (e as Error).message;
+    if (profileQuery.data?.share_location !== false) {
+      try {
+        location = await getCurrentPosition();
+      } catch (e) {
+        locationError = (e as Error).message;
+      }
+    } else {
+      locationError = "Location sharing is off in settings.";
     }
 
     const { data, error } = await supabase
@@ -139,7 +143,7 @@ function EmergencyPage() {
     setTriggering(false);
     setMode("off");
     setHits([]);
-  }, [gesture, triggerSource, user]);
+  }, [gesture, profileQuery.data?.share_location, triggerSource, user]);
 
   // Countdown ticker
   useEffect(() => {
@@ -231,7 +235,7 @@ function EmergencyPage() {
         <div className="surface pulse-alert border-destructive/60 p-6 text-center">
           <AlertTriangle className="mx-auto h-10 w-10 text-destructive" />
           <p className="mt-3 text-5xl font-semibold text-destructive">{countdown}</p>
-          <p className="mt-2 text-sm text-muted-foreground">Raising an emergency event and reading your GPS location…</p>
+          <p className="mt-2 text-sm text-muted-foreground">The alert will be sent when the countdown finishes.</p>
           <Button
             size="lg"
             variant="outline"

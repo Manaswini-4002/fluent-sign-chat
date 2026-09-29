@@ -39,7 +39,7 @@ function toQueue(items: GlossItem[]): QueueItem[] {
   return out;
 }
 
-export function SpeechToSign({ onTranscript }: { onTranscript?: (text: string, signs: SignId[]) => void }) {
+export function SpeechToSign({ onTranscript, compact = false }: { onTranscript?: (text: string, signs: SignId[]) => void; compact?: boolean }) {
   const [typed, setTyped] = useState("");
   const [queue, setQueue] = useState<QueueItem[]>([]);
   const [index, setIndex] = useState(0);
@@ -120,7 +120,7 @@ export function SpeechToSign({ onTranscript }: { onTranscript?: (text: string, s
     : null;
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className={compact ? "grid gap-4" : "grid gap-4 lg:grid-cols-2"}>
       <div className="surface overflow-hidden">
         <div className="relative h-[380px] w-full">
           <ClientOnly fallback={<div className="grid h-full place-items-center text-sm text-muted-foreground">Loading avatar…</div>}>

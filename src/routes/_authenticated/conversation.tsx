@@ -133,6 +133,7 @@ function ConversationPage() {
         <section className="grid gap-3" aria-label="Speaking participant">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-accent">Speaking user</h2>
           <SpeechToSign
+            compact
             onTranscript={(text) => {
               if (text.trim()) addEntry("speaker", text.trim());
             }}
