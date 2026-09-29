@@ -25,6 +25,8 @@ export const Route = createFileRoute("/_authenticated/emergency")({
       { name: "description", content: "Set up a gesture-triggered emergency alert with contacts and real GPS." },
       { property: "og:title", content: "Emergency — SignBridge AI" },
       { property: "og:description", content: "Gesture-triggered emergency alerts with live location sharing." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: EmergencyPage,

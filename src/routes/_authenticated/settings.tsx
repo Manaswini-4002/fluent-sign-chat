@@ -17,6 +17,8 @@ export const Route = createFileRoute("/_authenticated/settings")({
       { name: "description", content: "Update your SignBridge AI profile and location sharing preference." },
       { property: "og:title", content: "Settings — SignBridge AI" },
       { property: "og:description", content: "Profile and privacy settings for SignBridge AI." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: SettingsPage,

@@ -18,6 +18,8 @@ export const Route = createFileRoute("/_authenticated/translate")({
       { name: "description", content: "Translate signs to spoken sentences and speech to avatar signing." },
       { property: "og:title", content: "Translate — SignBridge AI" },
       { property: "og:description", content: "Live sign recognition and speech-to-sign avatar playback." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: TranslatePage,

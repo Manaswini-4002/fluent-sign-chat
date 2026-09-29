@@ -17,6 +17,8 @@ export const Route = createFileRoute("/emergency/$token")({
       { property: "og:title", content: "Emergency alert — SignBridge AI" },
       { property: "og:description", content: "Location, timestamp and accuracy for a SignBridge AI emergency alert." },
       { name: "robots", content: "noindex" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: SharedEmergency,

@@ -19,6 +19,8 @@ export const Route = createFileRoute("/_authenticated/conversation")({
       { name: "description", content: "A live back-and-forth conversation between a signing and a speaking person." },
       { property: "og:title", content: "Conversation — SignBridge AI" },
       { property: "og:description", content: "Two-way sign and speech conversation with a saved transcript." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: ConversationPage,

@@ -15,6 +15,8 @@ export const Route = createFileRoute("/login")({
       { name: "description", content: "Log in to SignBridge AI to translate signs, speech and emergency alerts." },
       { property: "og:title", content: "Log in — SignBridge AI" },
       { property: "og:description", content: "Access your SignBridge AI dashboard and emergency contacts." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: LoginPage,
