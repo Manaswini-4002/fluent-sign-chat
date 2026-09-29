@@ -109,7 +109,7 @@ function EmergencyPage() {
       .insert({
         user_id: user!.id,
         trigger_type: triggerSource,
-        gesture,
+        gesture: triggerSource === "manual" ? null : gesture,
         latitude: location?.latitude ?? null,
         longitude: location?.longitude ?? null,
         accuracy_m: location?.accuracy ?? null,
