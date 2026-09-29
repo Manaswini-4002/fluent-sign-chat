@@ -46,6 +46,7 @@ function EmergencyPage() {
   const [triggering, setTriggering] = useState(false);
   const [event, setEvent] = useState<any>(null);
   const [notifyResult, setNotifyResult] = useState<string | null>(null);
+  const [triggerSource, setTriggerSource] = useState<"gesture" | "manual">("gesture");
   const [contactForm, setContactForm] = useState({ name: "", phone: "", email: "", relation: "" });
   const countdownRef = useRef<number | null>(null);
 
@@ -103,13 +104,13 @@ function EmergencyPage() {
       .from("emergency_events")
       .insert({
         user_id: user!.id,
-        trigger_type: "gesture",
+        trigger_type: triggerSource,
         gesture,
         latitude: location?.latitude ?? null,
         longitude: location?.longitude ?? null,
         accuracy_m: location?.accuracy ?? null,
         location_error: locationError,
-        message: `Emergency alert raised with the ${SIGN_BY_ID[gesture].label} gesture.`,
+        message: triggerSource === "manual" ? "Emergency alert raised manually." : `Emergency alert raised with the ${SIGN_BY_ID[gesture].label} gesture.`,
       })
       .select()
       .single();
@@ -138,7 +139,7 @@ function EmergencyPage() {
     setTriggering(false);
     setMode("off");
     setHits([]);
-  }, [gesture, user]);
+  }, [gesture, triggerSource, user]);
 
   // Countdown ticker
   useEffect(() => {
@@ -168,6 +169,7 @@ function EmergencyPage() {
       return;
     }
     if (mode === "armed" && next.length >= REQUIRED_DETECTIONS && countdown === null) {
+      setTriggerSource("gesture");
       setCountdown(COUNTDOWN_SECONDS);
     }
   };
@@ -209,6 +211,20 @@ function EmergencyPage() {
           A held gesture, confirmed {REQUIRED_DETECTIONS} times, starts a {COUNTDOWN_SECONDS}-second countdown you can
           cancel before anything is sent.
         </p>
+        <Button
+          type="button"
+          size="lg"
+          variant="destructive"
+          className="mt-4 h-14"
+          disabled={countdown !== null || triggering}
+          onClick={() => {
+            setTriggerSource("manual");
+            setCountdown(COUNTDOWN_SECONDS);
+          }}
+        >
+          <AlertTriangle className="h-5 w-5" /> Send emergency alert manually
+        </Button>
+        <p className="mt-2 text-xs text-muted-foreground">Uses the same cancellable countdown, GPS check and contact delivery as a gesture alert.</p>
       </header>
 
       {countdown !== null && (
@@ -289,10 +305,10 @@ function EmergencyPage() {
                   <dt className="text-muted-foreground">Timestamp</dt>
                   <dd>{new Date(event.created_at).toLocaleString()}</dd>
                 </div>
-                <div>
-                  <dt className="text-muted-foreground">Gesture</dt>
-                  <dd>{SIGN_BY_ID[event.gesture as SignId]?.label ?? event.gesture}</dd>
-                </div>
+                 <div>
+                   <dt className="text-muted-foreground">Trigger</dt>
+                   <dd>{event.trigger_type === "manual" ? "Manual" : SIGN_BY_ID[event.gesture as SignId]?.label ?? event.gesture}</dd>
+                 </div>
                 <div>
                   <dt className="text-muted-foreground">GPS accuracy</dt>
                   <dd>{event.accuracy_m ? `±${Math.round(event.accuracy_m)} m` : "Unavailable"}</dd>

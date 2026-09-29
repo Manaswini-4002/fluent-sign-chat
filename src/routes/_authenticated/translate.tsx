@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Eraser, Volume2 } from "lucide-react";
+import { Eraser, Undo2, Volume2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -74,6 +74,9 @@ function TranslatePage() {
                 </Button>
                 <Button variant="outline" size="lg" onClick={() => setDetections([])} disabled={!detections.length}>
                   <Eraser className="h-4 w-4" /> Clear
+                </Button>
+                <Button variant="outline" size="lg" onClick={() => setDetections((prev) => prev.slice(0, -1))} disabled={!detections.length}>
+                  <Undo2 className="h-4 w-4" /> Undo last sign
                 </Button>
               </div>
             </div>
