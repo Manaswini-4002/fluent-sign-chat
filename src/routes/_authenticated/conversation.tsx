@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useMemo, useState } from "react";
-import { Volume2 } from "lucide-react";
+import { Download, Undo2, Volume2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,8 @@ export const Route = createFileRoute("/_authenticated/conversation")({
       { name: "description", content: "A live back-and-forth conversation between a signing and a speaking person." },
       { property: "og:title", content: "Conversation — SignBridge AI" },
       { property: "og:description", content: "Two-way sign and speech conversation with a saved transcript." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: ConversationPage,
@@ -82,6 +84,17 @@ function ConversationPage() {
     setPending([]);
   };
 
+  const downloadTranscript = () => {
+    const lines = transcript.map((entry) => `[${entry.at}] ${entry.speaker === "signer" ? "Sign user" : "Speaking user"}: ${entry.content}`);
+    const blob = new Blob([lines.join("\n") + "\n"], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `signbridge-conversation-${sessionId.slice(0, 8)}.txt`;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
   return (
     <div className="grid gap-6">
       <header>
@@ -113,12 +126,16 @@ function ConversationPage() {
                 </span>
               ))}
             </div>
+            <Button size="sm" variant="ghost" className="mt-3" onClick={() => setPending((p) => p.slice(0, -1))} disabled={!pending.length}>
+              <Undo2 className="h-4 w-4" /> Undo last sign
+            </Button>
           </div>
         </section>
 
         <section className="grid gap-3" aria-label="Speaking participant">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-accent">Speaking user</h2>
           <SpeechToSign
+            compact
             onTranscript={(text) => {
               if (text.trim()) addEntry("speaker", text.trim());
             }}
@@ -127,9 +144,14 @@ function ConversationPage() {
       </div>
 
       <section className="surface p-5">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-lg font-semibold">Transcript</h2>
-          <span className="text-xs text-muted-foreground">Session {sessionId.slice(0, 8)}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Session {sessionId.slice(0, 8)}</span>
+            <Button size="sm" variant="outline" onClick={downloadTranscript} disabled={!transcript.length} aria-label="Download transcript">
+              <Download className="h-4 w-4" /> Download
+            </Button>
+          </div>
         </div>
         <ul className="mt-4 grid gap-3">
           {transcript.length === 0 && <li className="text-sm text-muted-foreground">No turns yet.</li>}

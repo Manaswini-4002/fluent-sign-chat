@@ -15,6 +15,8 @@ export const Route = createFileRoute("/register")({
       { name: "description", content: "Create a SignBridge AI account to save emergency contacts and transcripts." },
       { property: "og:title", content: "Create account — SignBridge AI" },
       { property: "og:description", content: "Sign up for SignBridge AI two-way sign language communication." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: RegisterPage,

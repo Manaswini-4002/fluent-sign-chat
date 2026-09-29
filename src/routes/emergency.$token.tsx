@@ -17,6 +17,8 @@ export const Route = createFileRoute("/emergency/$token")({
       { property: "og:title", content: "Emergency alert — SignBridge AI" },
       { property: "og:description", content: "Location, timestamp and accuracy for a SignBridge AI emergency alert." },
       { name: "robots", content: "noindex" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: SharedEmergency,
@@ -29,7 +31,7 @@ function SharedEmergency() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("emergency_events")
-        .select("created_at, gesture, latitude, longitude, accuracy_m, location_error, message, resolved")
+        .select("created_at, trigger_type, gesture, latitude, longitude, accuracy_m, location_error, message, resolved")
         .eq("share_token", token)
         .maybeSingle();
       if (error) throw error;
@@ -62,6 +64,10 @@ function SharedEmergency() {
                 <div>
                   <dt className="text-muted-foreground">Status</dt>
                   <dd>{data.resolved ? "Marked resolved" : "Active"}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">Triggered by</dt>
+                  <dd>{data.trigger_type === "manual" ? "Manual alert" : `Gesture: ${data.gesture ?? "Unknown"}`}</dd>
                 </div>
                 <div>
                   <dt className="text-muted-foreground">GPS accuracy</dt>

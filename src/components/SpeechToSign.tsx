@@ -13,6 +13,8 @@ import { textToGloss, type GlossItem } from "@/lib/aslGloss";
 
 const SignAvatar = lazy(() => import("@/components/SignAvatar"));
 
+const QUICK_PHRASES = ["Hello", "Thank you", "I need help", "Where is the hospital?", "I need water", "Please wait"];
+
 interface QueueItem {
   item: GlossItem;
   clip: SignClip;
@@ -37,7 +39,7 @@ function toQueue(items: GlossItem[]): QueueItem[] {
   return out;
 }
 
-export function SpeechToSign({ onTranscript }: { onTranscript?: (text: string, signs: SignId[]) => void }) {
+export function SpeechToSign({ onTranscript, compact = false }: { onTranscript?: (text: string, signs: SignId[]) => void; compact?: boolean }) {
   const [typed, setTyped] = useState("");
   const [queue, setQueue] = useState<QueueItem[]>([]);
   const [index, setIndex] = useState(0);
@@ -118,7 +120,7 @@ export function SpeechToSign({ onTranscript }: { onTranscript?: (text: string, s
     : null;
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className={compact ? "grid gap-4" : "grid gap-4 lg:grid-cols-2"}>
       <div className="surface overflow-hidden">
         <div className="relative h-[380px] w-full">
           <ClientOnly fallback={<div className="grid h-full place-items-center text-sm text-muted-foreground">Loading avatar…</div>}>
@@ -206,6 +208,17 @@ export function SpeechToSign({ onTranscript }: { onTranscript?: (text: string, s
             <Play className="h-4 w-4" />
           </Button>
         </form>
+
+        <div>
+          <p className="mb-2 text-xs font-medium uppercase text-muted-foreground">Quick phrases</p>
+          <div className="flex flex-wrap gap-2">
+            {QUICK_PHRASES.map((phrase) => (
+              <Button key={phrase} type="button" size="sm" variant="outline" className="h-auto min-h-9 whitespace-normal text-left" onClick={() => handleText(phrase)}>
+                {phrase}
+              </Button>
+            ))}
+          </div>
+        </div>
 
         {history.map((h, i) => (
           <div key={i} className="rounded-xl border border-border bg-secondary/60 p-4 text-sm">

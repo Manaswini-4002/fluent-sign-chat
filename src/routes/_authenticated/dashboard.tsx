@@ -14,6 +14,8 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
       { name: "description", content: "Start translation, conversation or check emergency protection status." },
       { property: "og:title", content: "Dashboard — SignBridge AI" },
       { property: "og:description", content: "Your SignBridge AI control centre." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Dashboard,

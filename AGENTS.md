@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep quick communication phrases in the shared speech-to-sign panel so Translate and Conversation stay consistent.
+- Route manual and gesture emergency triggers through one countdown and delivery path to avoid divergent safety behavior.

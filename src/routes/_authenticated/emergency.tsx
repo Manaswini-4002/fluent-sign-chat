@@ -25,6 +25,8 @@ export const Route = createFileRoute("/_authenticated/emergency")({
       { name: "description", content: "Set up a gesture-triggered emergency alert with contacts and real GPS." },
       { property: "og:title", content: "Emergency — SignBridge AI" },
       { property: "og:description", content: "Gesture-triggered emergency alerts with live location sharing." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: EmergencyPage,
@@ -46,6 +48,7 @@ function EmergencyPage() {
   const [triggering, setTriggering] = useState(false);
   const [event, setEvent] = useState<any>(null);
   const [notifyResult, setNotifyResult] = useState<string | null>(null);
+  const [triggerSource, setTriggerSource] = useState<"gesture" | "manual">("gesture");
   const [contactForm, setContactForm] = useState({ name: "", phone: "", email: "", relation: "" });
   const countdownRef = useRef<number | null>(null);
 
@@ -93,23 +96,27 @@ function EmergencyPage() {
     setNotifyResult(null);
     let location: Awaited<ReturnType<typeof getCurrentPosition>> | null = null;
     let locationError: string | null = null;
-    try {
-      location = await getCurrentPosition();
-    } catch (e) {
-      locationError = (e as Error).message;
+    if (profileQuery.data?.share_location !== false) {
+      try {
+        location = await getCurrentPosition();
+      } catch (e) {
+        locationError = (e as Error).message;
+      }
+    } else {
+      locationError = "Location sharing is off in settings.";
     }
 
     const { data, error } = await supabase
       .from("emergency_events")
       .insert({
         user_id: user!.id,
-        trigger_type: "gesture",
-        gesture,
+        trigger_type: triggerSource,
+        gesture: triggerSource === "manual" ? null : gesture,
         latitude: location?.latitude ?? null,
         longitude: location?.longitude ?? null,
         accuracy_m: location?.accuracy ?? null,
         location_error: locationError,
-        message: `Emergency alert raised with the ${SIGN_BY_ID[gesture].label} gesture.`,
+        message: triggerSource === "manual" ? "Emergency alert raised manually." : `Emergency alert raised with the ${SIGN_BY_ID[gesture].label} gesture.`,
       })
       .select()
       .single();
@@ -138,7 +145,7 @@ function EmergencyPage() {
     setTriggering(false);
     setMode("off");
     setHits([]);
-  }, [gesture, user]);
+  }, [gesture, profileQuery.data?.share_location, triggerSource, user]);
 
   // Countdown ticker
   useEffect(() => {
@@ -168,6 +175,7 @@ function EmergencyPage() {
       return;
     }
     if (mode === "armed" && next.length >= REQUIRED_DETECTIONS && countdown === null) {
+      setTriggerSource("gesture");
       setCountdown(COUNTDOWN_SECONDS);
     }
   };
@@ -209,13 +217,27 @@ function EmergencyPage() {
           A held gesture, confirmed {REQUIRED_DETECTIONS} times, starts a {COUNTDOWN_SECONDS}-second countdown you can
           cancel before anything is sent.
         </p>
+        <Button
+          type="button"
+          size="lg"
+          variant="destructive"
+          className="mt-4 h-14"
+          disabled={countdown !== null || triggering}
+          onClick={() => {
+            setTriggerSource("manual");
+            setCountdown(COUNTDOWN_SECONDS);
+          }}
+        >
+          <AlertTriangle className="h-5 w-5" /> Send emergency alert manually
+        </Button>
+        <p className="mt-2 text-xs text-muted-foreground">Uses the same cancellable countdown, GPS check and contact delivery as a gesture alert.</p>
       </header>
 
       {countdown !== null && (
         <div className="surface pulse-alert border-destructive/60 p-6 text-center">
           <AlertTriangle className="mx-auto h-10 w-10 text-destructive" />
           <p className="mt-3 text-5xl font-semibold text-destructive">{countdown}</p>
-          <p className="mt-2 text-sm text-muted-foreground">Raising an emergency event and reading your GPS location…</p>
+          <p className="mt-2 text-sm text-muted-foreground">The alert will be sent when the countdown finishes.</p>
           <Button
             size="lg"
             variant="outline"
@@ -289,10 +311,10 @@ function EmergencyPage() {
                   <dt className="text-muted-foreground">Timestamp</dt>
                   <dd>{new Date(event.created_at).toLocaleString()}</dd>
                 </div>
-                <div>
-                  <dt className="text-muted-foreground">Gesture</dt>
-                  <dd>{SIGN_BY_ID[event.gesture as SignId]?.label ?? event.gesture}</dd>
-                </div>
+                 <div>
+                   <dt className="text-muted-foreground">Trigger</dt>
+                   <dd>{event.trigger_type === "manual" ? "Manual" : SIGN_BY_ID[event.gesture as SignId]?.label ?? event.gesture}</dd>
+                 </div>
                 <div>
                   <dt className="text-muted-foreground">GPS accuracy</dt>
                   <dd>{event.accuracy_m ? `±${Math.round(event.accuracy_m)} m` : "Unavailable"}</dd>
