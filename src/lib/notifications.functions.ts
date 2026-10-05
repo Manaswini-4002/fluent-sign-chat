@@ -43,6 +43,12 @@ export const sendEmergencyAlert = createServerFn({ method: "POST" })
       .eq("user_id", context.userId);
     if (error) throw new Error(error.message);
 
+    const { data: prof } = await context.supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", context.userId)
+      .maybeSingle();
+    const senderName = prof?.full_name ?? "";
     const sms = twilioConfigured();
     const email = resendConfigured();
     if (!sms && !email) {
@@ -77,7 +83,11 @@ export const sendEmergencyAlert = createServerFn({ method: "POST" })
         else failures.push(`SMS to ${contact.name}: ${res.status}`);
       }
       if (email && contact.email) {
-        const from = process.env["EMERGENCY_FROM_EMAIL"] ?? "SignBridge AI <onboarding@resend.dev>";
+        const sender = process.env["EMERGENCY_FROM_EMAIL"] ?? "onboarding@resend.dev";
+        const address = sender.match(/<([^>]+)>/)?.[1] ?? sender;
+        const userEmail = (context.claims as { email?: string }).email;
+        const shownName = (senderName || userEmail || "SignBridge AI").replace(/[<>",]/g, "");
+        const from = `${shownName} via SignBridge <${address}>`;
         const res = await fetch(`${RESEND_GATEWAY}/emails`, {
           method: "POST",
           headers: {
@@ -87,6 +97,9 @@ export const sendEmergencyAlert = createServerFn({ method: "POST" })
           },
           body: JSON.stringify({
             from,
+            ...((context.claims as { email?: string }).email
+              ? { reply_to: (context.claims as { email?: string }).email }
+              : {}),
             to: [contact.email],
             subject: "Emergency alert from SignBridge AI",
             text: body,
