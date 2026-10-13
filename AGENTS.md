@@ -11,3 +11,4 @@
 
 - Keep quick communication phrases in the shared speech-to-sign panel so Translate and Conversation stay consistent.
 - Route manual and gesture emergency triggers through one countdown and delivery path to avoid divergent safety behavior.
+- Use shared PageHeading and SectionHeading components for page hierarchy so section divisions remain consistent across the app.

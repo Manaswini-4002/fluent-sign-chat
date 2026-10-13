@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { LogOut, Menu } from "lucide-react";
+import { LogOut, Menu, LayoutDashboard, Hand, MessagesSquare, ShieldAlert, Settings } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -7,11 +7,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
 const NAV = [
-  { to: "/dashboard", label: "Dashboard" },
-  { to: "/translate", label: "Translate" },
-  { to: "/conversation", label: "Conversation" },
-  { to: "/emergency", label: "Emergency" },
-  { to: "/settings", label: "Settings" },
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/translate", label: "Translate", icon: Hand },
+  { to: "/conversation", label: "Conversation", icon: MessagesSquare },
+  { to: "/emergency", label: "Emergency", icon: ShieldAlert },
+  { to: "/settings", label: "Settings", icon: Settings },
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -26,7 +26,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span className="grid h-8 w-8 place-items-center rounded-xl bg-primary text-primary-foreground">SB</span>
             <span className="text-gradient">SignBridge AI</span>
           </Link>
-          <nav className="ml-6 hidden items-center gap-1 md:flex">
+          <nav aria-label="Main navigation" className="ml-6 hidden items-center gap-1 md:flex lg:hidden">
             {NAV.map((item) => (
               <Link
                 key={item.to}
@@ -72,7 +72,27 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">{children}</main>
+      <div className="mx-auto flex max-w-[1500px]">
+        <aside className="sticky top-[65px] hidden h-[calc(100vh-65px)] w-56 shrink-0 flex-col border-r border-border px-4 py-8 lg:flex">
+          <p className="mb-3 px-3 text-xs font-semibold uppercase text-muted-foreground">Workspace</p>
+          <nav aria-label="Workspace navigation" className="grid gap-2">
+            {NAV.slice(0, 3).map((item) => (
+              <Link key={item.to} to={item.to} activeProps={{ className: "bg-primary/10 text-primary border-primary/30" }} className="flex items-center gap-3 rounded-lg border border-transparent px-3 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">
+                <item.icon className="h-4 w-4" />{item.label}
+              </Link>
+            ))}
+          </nav>
+          <p className="mb-3 mt-8 border-t border-border px-3 pt-6 text-xs font-semibold uppercase text-muted-foreground">Safety & account</p>
+          <nav aria-label="Safety and account" className="grid gap-2">
+            {NAV.slice(3).map((item) => (
+              <Link key={item.to} to={item.to} activeProps={{ className: "bg-primary/10 text-primary border-primary/30" }} className="flex items-center gap-3 rounded-lg border border-transparent px-3 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">
+                <item.icon className="h-4 w-4" />{item.label}
+              </Link>
+            ))}
+          </nav>
+        </aside>
+        <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 sm:py-8 xl:px-10">{children}</main>
+      </div>
     </div>
   );
 }

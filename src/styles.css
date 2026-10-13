@@ -45,6 +45,7 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
+  --color-camera: var(--camera);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -59,7 +60,8 @@
 }
 
 :root {
-  --radius: 0.9rem;
+  --radius: 0.5rem;
+  --camera: oklch(0.11 0.012 255);
   --background: oklch(0.145 0.03 255);
   --foreground: oklch(0.97 0.006 240);
   --card: oklch(0.192 0.032 258);
@@ -129,7 +131,7 @@
   h3,
   .font-display {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
   }
 
   :focus-visible {
@@ -139,20 +141,13 @@
 }
 
 @utility surface {
-  background-image: linear-gradient(
-    150deg,
-    color-mix(in oklch, var(--color-card) 92%, var(--color-primary) 8%),
-    var(--color-card)
-  );
+  background-color: var(--color-card);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-2xl);
-  box-shadow: var(--shadow-panel);
+  border-radius: var(--radius);
 }
 
 @utility aurora {
-  background-image:
-    radial-gradient(60% 55% at 12% 8%, color-mix(in oklch, var(--color-primary) 26%, transparent), transparent 70%),
-    radial-gradient(55% 50% at 92% 4%, color-mix(in oklch, var(--color-accent) 22%, transparent), transparent 70%);
+  background-color: var(--color-background);
 }
 
 @utility text-gradient {
@@ -176,4 +171,35 @@
 
 @utility pulse-alert {
   animation: pulse-ring 1.6s ease-out infinite;
+}
+
+.page-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding-bottom: 1.75rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-bottom: 0.9rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+.workspace-section {
+  min-width: 0;
+  padding-top: 0.5rem;
+}
+.section-band {
+  padding-block: 2.5rem;
+  border-top: 1px solid var(--border);
+}
+@media (prefers-reduced-motion: reduce) {
+  .pulse-alert { animation: none; }
 }
