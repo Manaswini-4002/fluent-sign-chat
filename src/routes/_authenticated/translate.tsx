@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SignCapture } from "@/components/SignCapture";
 import { SpeechToSign } from "@/components/SpeechToSign";
+import { PageHeading, SectionHeading } from "@/components/PageHeading";
 import { SIGNS, SIGN_BY_ID, signsToSentence, type SignId } from "@/lib/signs";
 import { speak, ttsSupported } from "@/lib/speech";
 import type { StableRecognition } from "@/lib/handRecognition";
@@ -37,24 +38,22 @@ function TranslatePage() {
 
   return (
     <div className="grid gap-6">
-      <header>
-        <h1 className="text-3xl font-semibold">Translate</h1>
-        <p className="mt-1 text-muted-foreground">
-          Sign recognition uses MediaPipe hand landmarks with temporal confirmation. Only the 12 listed signs are
-          supported.
-        </p>
-      </header>
+      <PageHeading category="Communication" title="Translate" description="Signs to speech. Speech to signing. Camera recognition supports 12 signs." />
 
       <Tabs defaultValue="sign">
-        <TabsList>
+        <TabsList className="h-auto w-full justify-start gap-2 rounded-none border-b border-border bg-transparent p-0 pb-4">
           <TabsTrigger value="sign">Sign → Speech</TabsTrigger>
           <TabsTrigger value="speech">Speech → Sign</TabsTrigger>
         </TabsList>
 
         <TabsContent value="sign" className="mt-4 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
-          <SignCapture onSign={handleSign} />
+          <section className="workspace-section">
+            <SectionHeading title="Camera input" detail="Sign → Speech" />
+            <SignCapture onSign={handleSign} />
+          </section>
 
-          <div className="grid gap-4">
+          <div className="grid content-start gap-6">
+            <SectionHeading title="Translation output" />
             <div className="surface p-5">
               <h2 className="text-lg font-semibold">Recognised sentence</h2>
               <p className="mt-3 min-h-14 rounded-xl border border-border bg-secondary/60 p-4 text-lg">
@@ -83,7 +82,7 @@ function TranslatePage() {
               </div>
             </div>
 
-            <div className="surface p-5">
+            <div className="border-t border-border pt-5">
               <h3 className="font-semibold">Detections</h3>
               <ul className="mt-3 grid gap-2 text-sm">
                 {detections.length === 0 && <li className="text-muted-foreground">No confirmed signs yet.</li>}
@@ -98,9 +97,9 @@ function TranslatePage() {
               </ul>
             </div>
 
-            <div className="surface p-5">
-              <h3 className="font-semibold">Vocabulary &amp; how to sign it</h3>
-              <ul className="mt-3 grid gap-3 text-sm">
+            <details className="border-t border-border pt-5">
+              <summary className="cursor-pointer font-semibold">Vocabulary &amp; how to sign it</summary>
+              <ul className="mt-4 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-1">
                 {SIGNS.map((s) => (
                   <li key={s.id}>
                     <p className="font-medium">
@@ -110,7 +109,7 @@ function TranslatePage() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </details>
           </div>
         </TabsContent>
 

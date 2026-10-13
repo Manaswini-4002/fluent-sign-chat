@@ -53,7 +53,7 @@ export function SpeechToSign({ onTranscript, compact = false }: { onTranscript?:
   const indexRef = useRef(0);
 
   const playing = index < queue.length;
-  const current = playing ? queue[index]! : null;
+  const current = playing ? queue[index] ?? null : null;
 
   const handleText = useCallback(
     (value: string, replay = false) => {
@@ -121,7 +121,11 @@ export function SpeechToSign({ onTranscript, compact = false }: { onTranscript?:
 
   return (
     <div className={compact ? "grid gap-4" : "grid gap-4 lg:grid-cols-2"}>
-      <div className="surface overflow-hidden">
+      <div className="min-w-0 overflow-hidden rounded-lg border border-border bg-card">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <h2 className="text-sm font-semibold">Signing avatar</h2>
+          <span className="text-xs text-muted-foreground">{playing ? "Signing" : "Ready"}</span>
+        </div>
         <div className="relative h-[380px] w-full">
           <ClientOnly fallback={<div className="grid h-full place-items-center text-sm text-muted-foreground">Loading avatar…</div>}>
             <Suspense fallback={<div className="grid h-full place-items-center text-sm text-muted-foreground">Loading avatar…</div>}>
@@ -173,12 +177,12 @@ export function SpeechToSign({ onTranscript, compact = false }: { onTranscript?:
         </div>
       </div>
 
-      <div className="surface grid content-start gap-4 p-5">
+      <div className="grid min-w-0 content-start gap-5">
         <div>
-          <h2 className="text-lg font-semibold">Speech → ASL</h2>
+          <h2 className="text-lg font-semibold">Speech & text</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {supported
-              ? "Talk continuously — each phrase is converted to ASL word order and signed by the avatar. Words without a sign are fingerspelled."
+              ? "12 authored signs; other words are fingerspelled. ASL grammar is simplified."
               : "Speech recognition isn't available in this browser — use the typed input below."}
           </p>
         </div>
@@ -196,20 +200,20 @@ export function SpeechToSign({ onTranscript, compact = false }: { onTranscript?:
         {listening && <p className="text-sm text-muted-foreground">Listening… {interim}</p>}
 
         <form
-          className="flex gap-2"
+          className="flex gap-2 border-t border-border pt-5"
           onSubmit={(e) => {
             e.preventDefault();
             if (typed.trim()) handleText(typed.trim());
             setTyped("");
           }}
         >
-          <Input value={typed} onChange={(e) => setTyped(e.target.value)} placeholder="Type: where is the hospital, my name is Sam" />
+          <Input aria-label="Text to sign" className="min-w-0" value={typed} onChange={(e) => setTyped(e.target.value)} placeholder="Type a message…" />
           <Button type="submit" aria-label="Sign typed text">
             <Play className="h-4 w-4" />
           </Button>
         </form>
 
-        <div>
+        <div className="border-t border-border pt-5">
           <p className="mb-2 text-xs font-medium uppercase text-muted-foreground">Quick phrases</p>
           <div className="flex flex-wrap gap-2">
             {QUICK_PHRASES.map((phrase) => (
@@ -220,8 +224,9 @@ export function SpeechToSign({ onTranscript, compact = false }: { onTranscript?:
           </div>
         </div>
 
+        {history.length > 0 && <h3 className="border-t border-border pt-5 text-sm font-semibold">Recent translations</h3>}
         {history.map((h, i) => (
-          <div key={i} className="rounded-xl border border-border bg-secondary/60 p-4 text-sm">
+          <div key={i} className="border-l-2 border-primary bg-secondary/40 p-4 text-sm">
             <p className="text-muted-foreground">“{h.text}”</p>
             <p className="mt-2 text-xs uppercase tracking-wide text-muted-foreground">ASL gloss</p>
             <div className="mt-1 flex flex-wrap gap-2">
