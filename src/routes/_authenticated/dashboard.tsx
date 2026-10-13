@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Camera, Mic, MapPin, MessagesSquare, ShieldAlert, Hand } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { PageHeading, SectionHeading } from "@/components/PageHeading";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useDeviceStatus, type PermState } from "@/hooks/useDeviceStatus";
@@ -78,11 +79,10 @@ function Dashboard() {
 
   return (
     <div className="grid gap-6">
-      <header>
-        <h1 className="text-3xl font-semibold">Welcome back</h1>
-        <p className="mt-1 text-muted-foreground">{user?.email}</p>
-      </header>
+      <PageHeading category="Workspace" title="Welcome back" description={user?.email ?? "SignBridge AI"} />
 
+      <section className="workspace-section">
+      <SectionHeading title="Communication" detail="Choose a starting point" />
       <div className="grid gap-4 md:grid-cols-3">
         {[
           {
@@ -111,9 +111,10 @@ function Dashboard() {
           </Link>
         ))}
       </div>
+      </section>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <div className="surface p-6 lg:col-span-2">
+      <div className="section-band grid gap-8 xl:grid-cols-3">
+        <div className="xl:col-span-2">
           <h2 className="flex items-center gap-2 text-lg font-semibold">
             <ShieldAlert className="h-5 w-5 text-destructive" /> Emergency protection
           </h2>
@@ -151,7 +152,7 @@ function Dashboard() {
           </ul>
         </div>
 
-        <div className="surface p-6">
+        <div className="border-t border-border pt-6 xl:border-l xl:border-t-0 xl:pl-6 xl:pt-0">
           <h2 className="text-lg font-semibold">Device status</h2>
           <ul className="mt-3 grid gap-2">
             <StatusRow icon={Camera} label="Camera" state={device.camera} />
