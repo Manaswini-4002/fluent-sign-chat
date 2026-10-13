@@ -33,7 +33,7 @@ export function SignCapture({
 
   return (
     <div className="surface overflow-hidden">
-      <div className="relative aspect-video w-full bg-black">
+      <div className="relative aspect-video w-full bg-camera">
         <video
           ref={videoRef}
           playsInline
@@ -77,7 +77,7 @@ export function SignCapture({
         </div>
 
         {!compact && (
-          <div className="rounded-xl border border-border bg-secondary/60 p-4">
+          <div className="border-t border-border pt-4">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Current frame</span>
               <span className="font-medium">

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SignCapture } from "@/components/SignCapture";
+import { PageHeading, SectionHeading } from "@/components/PageHeading";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { getCurrentPosition } from "@/hooks/useDeviceStatus";
@@ -211,17 +212,14 @@ function EmergencyPage() {
 
   return (
     <div className="grid gap-6">
-      <header>
-        <h1 className="text-3xl font-semibold">Emergency protection</h1>
-        <p className="mt-1 text-muted-foreground">
-          A held gesture, confirmed {REQUIRED_DETECTIONS} times, starts a {COUNTDOWN_SECONDS}-second countdown you can
-          cancel before anything is sent.
-        </p>
+      <PageHeading category="Safety" title="Emergency protection" description={`A gesture confirmed ${REQUIRED_DETECTIONS} times starts a cancellable ${COUNTDOWN_SECONDS}-second countdown.`} />
+      <section className="flex flex-wrap items-center justify-between gap-4 border-l-2 border-destructive bg-destructive/5 p-5" aria-label="Manual emergency alert">
+        <div><h2 className="font-semibold">Need help now?</h2><p className="mt-1 text-sm text-muted-foreground">A {COUNTDOWN_SECONDS}-second countdown starts before the alert is sent.</p></div>
         <Button
           type="button"
           size="lg"
           variant="destructive"
-          className="mt-4 h-14"
+          className="h-auto min-h-12 whitespace-normal"
           disabled={countdown !== null || triggering}
           onClick={() => {
             setTriggerSource("manual");
@@ -230,8 +228,7 @@ function EmergencyPage() {
         >
           <AlertTriangle className="h-5 w-5" /> Send emergency alert manually
         </Button>
-        <p className="mt-2 text-xs text-muted-foreground">Uses the same cancellable countdown, GPS check and contact delivery as a gesture alert.</p>
-      </header>
+      </section>
 
       {countdown !== null && (
         <div className="surface pulse-alert border-destructive/60 p-6 text-center">
@@ -254,9 +251,9 @@ function EmergencyPage() {
       )}
 
       <div className="grid gap-4 xl:grid-cols-[1.3fr_1fr]">
-        <div className="grid gap-4">
-          <div className="surface p-5">
-            <h2 className="text-lg font-semibold">Emergency gesture</h2>
+        <div className="grid content-start gap-6">
+          <section className="workspace-section">
+            <SectionHeading title="Gesture protection" detail="Detection & testing" />
             <div className="mt-3 flex flex-wrap gap-2">
               {GESTURE_OPTIONS.map((g) => (
                 <Button
@@ -297,7 +294,7 @@ function EmergencyPage() {
                 {mode === "armed" && `Armed — ${hits.length}/${REQUIRED_DETECTIONS} confirmations`}
               </span>
             </div>
-          </div>
+          </section>
 
           {mode !== "off" && <SignCapture onSign={onSign} />}
 
@@ -358,8 +355,8 @@ function EmergencyPage() {
           )}
         </div>
 
-        <div className="grid gap-4">
-          <div className="surface p-5">
+        <div className="grid content-start gap-6 xl:border-l xl:border-border xl:pl-6">
+          <div className="border-b border-border pb-5">
             <h2 className="flex items-center gap-2 text-lg font-semibold">
               <ShieldCheck className="h-5 w-5 text-primary" /> Delivery
             </h2>
@@ -372,8 +369,8 @@ function EmergencyPage() {
             </p>
           </div>
 
-          <div className="surface p-5">
-            <h2 className="text-lg font-semibold">Emergency contacts</h2>
+          <section className="workspace-section">
+            <SectionHeading title="Emergency contacts" detail={`${contactsQuery.data?.length ?? 0} saved`} />
             <ul className="mt-3 grid gap-2">
               {contactsQuery.isLoading && <li className="text-sm text-muted-foreground">Loading…</li>}
               {contactsQuery.data?.length === 0 && (
@@ -381,7 +378,7 @@ function EmergencyPage() {
               )}
               {contactsQuery.data?.map((c) => (
                 <li key={c.id} className="flex items-center justify-between rounded-lg bg-secondary/60 px-3 py-2">
-                  <div className="text-sm">
+                  <div className="min-w-0 break-words text-sm">
                     <p className="font-medium">
                       {c.name} {c.relation && <span className="text-muted-foreground">· {c.relation}</span>}
                     </p>
@@ -394,7 +391,8 @@ function EmergencyPage() {
               ))}
             </ul>
 
-            <form onSubmit={addContact} className="mt-4 grid gap-3">
+            <form onSubmit={addContact} className="mt-6 grid gap-3 border-t border-border pt-5">
+              <h3 className="mb-1 text-sm font-semibold">Add a contact</h3>
               <div className="grid gap-2">
                 <Label htmlFor="c-name">Name</Label>
                 <Input
@@ -435,7 +433,7 @@ function EmergencyPage() {
                 <Plus className="h-4 w-4" /> Add contact
               </Button>
             </form>
-          </div>
+          </section>
         </div>
       </div>
     </div>

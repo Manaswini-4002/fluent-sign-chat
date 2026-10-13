@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { SignCapture } from "@/components/SignCapture";
 import { SpeechToSign } from "@/components/SpeechToSign";
+import { PageHeading, SectionHeading } from "@/components/PageHeading";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { SIGN_BY_ID, signsToSentence, type SignId } from "@/lib/signs";
@@ -97,17 +98,11 @@ function ConversationPage() {
 
   return (
     <div className="grid gap-6">
-      <header>
-        <h1 className="text-3xl font-semibold">Conversation</h1>
-        <p className="mt-1 text-muted-foreground">
-          The signing person uses the camera on the left. The speaking person uses the microphone on the right. Every
-          turn is added to the shared transcript.
-        </p>
-      </header>
+      <PageHeading category="Communication" title="Conversation" description="A shared conversation between signing and speaking participants." />
 
       <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
-        <section className="grid gap-3" aria-label="Signing participant">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-primary">Sign user</h2>
+        <section className="workspace-section grid content-start gap-3" aria-label="Signing participant">
+          <SectionHeading title="Sign user" detail="Camera input" />
           <SignCapture
             onSign={(r) => setPending((p) => [...p, r])}
             footer={
@@ -132,8 +127,8 @@ function ConversationPage() {
           </div>
         </section>
 
-        <section className="grid gap-3" aria-label="Speaking participant">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-accent">Speaking user</h2>
+        <section className="workspace-section grid content-start gap-3 xl:border-l xl:border-border xl:pl-6" aria-label="Speaking participant">
+          <SectionHeading title="Speaking user" detail="Speech & text input" />
           <SpeechToSign
             compact
             onTranscript={(text) => {
@@ -143,7 +138,7 @@ function ConversationPage() {
         </section>
       </div>
 
-      <section className="surface p-5">
+      <section className="section-band">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-lg font-semibold">Transcript</h2>
           <div className="flex items-center gap-2">
