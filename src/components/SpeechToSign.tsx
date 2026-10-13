@@ -120,13 +120,13 @@ export function SpeechToSign({ onTranscript, compact = false }: { onTranscript?:
     : null;
 
   return (
-    <div className={compact ? "grid gap-4" : "grid gap-4 lg:grid-cols-2"}>
-      <div className="min-w-0 overflow-hidden rounded-lg border border-border bg-card">
-        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+    <div className={compact ? "grid min-w-0 items-start gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" : "grid gap-4 lg:grid-cols-2"}>
+      <div className={compact ? "order-2 min-w-0 overflow-hidden rounded-lg border border-border bg-card sm:order-1" : "min-w-0 overflow-hidden rounded-lg border border-border bg-card"}>
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b border-border px-4 py-3">
           <h2 className="text-sm font-semibold">Signing avatar</h2>
           <span className="text-xs text-muted-foreground">{playing ? "Signing" : "Ready"}</span>
         </div>
-        <div className="relative h-[380px] w-full">
+        <div className={compact ? "relative h-[260px] w-full xl:h-[300px]" : "relative h-[380px] w-full"}>
           <ClientOnly fallback={<div className="grid h-full place-items-center text-sm text-muted-foreground">Loading avatar…</div>}>
             <Suspense fallback={<div className="grid h-full place-items-center text-sm text-muted-foreground">Loading avatar…</div>}>
               <SignAvatar
@@ -142,7 +142,7 @@ export function SpeechToSign({ onTranscript, compact = false }: { onTranscript?:
               <span className="rounded-full bg-background/80 px-4 py-1 text-xs font-medium uppercase tracking-widest text-muted-foreground">
                 {current.item.kind === "sign" ? "ASL sign" : "Fingerspelling"}
               </span>
-              <span className="rounded-xl bg-background/85 px-4 py-2 font-display text-2xl font-semibold">
+              <span className="max-w-full break-all rounded-lg bg-background/85 px-3 py-2 text-center font-display text-xl font-semibold">
                 {current.item.kind === "spell" && current.letters
                   ? current.letters.map((l, i) => (
                       <span key={i} className={l.ch === letter ? "text-primary" : "text-muted-foreground"}>
@@ -160,10 +160,10 @@ export function SpeechToSign({ onTranscript, compact = false }: { onTranscript?:
               Signing {index + 1} of {queue.length}
             </p>
           ) : (
-            <p className="text-muted-foreground">Avatar ready. Speak or type — it signs in ASL order as you talk.</p>
+            <p className="text-muted-foreground">{compact ? "Ready to sign" : "Avatar ready. Speak or type — it signs in ASL order as you talk."}</p>
           )}
           <div className="flex items-center gap-3">
-            <span className="w-16 text-xs text-muted-foreground">Speed {speed.toFixed(1)}×</span>
+            <span className="shrink-0 text-xs text-muted-foreground">Speed {speed.toFixed(1)}×</span>
             <Slider aria-label="Signing speed" min={0.5} max={1.6} step={0.1} value={[speed]} onValueChange={(v) => setSpeed(v[0] ?? 1)} />
           </div>
           <div className="flex gap-2">
@@ -177,7 +177,7 @@ export function SpeechToSign({ onTranscript, compact = false }: { onTranscript?:
         </div>
       </div>
 
-      <div className="grid min-w-0 content-start gap-5">
+      <div className={compact ? "order-1 grid min-w-0 content-start gap-4 sm:order-2" : "grid min-w-0 content-start gap-5"}>
         <div>
           <h2 className="text-lg font-semibold">Speech & text</h2>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -188,19 +188,19 @@ export function SpeechToSign({ onTranscript, compact = false }: { onTranscript?:
         </div>
 
         {listening ? (
-          <Button size="lg" variant="destructive" className="h-14" onClick={stop}>
+          <Button size="lg" variant="destructive" className="h-auto min-h-12 whitespace-normal" onClick={stop}>
             <MicOff className="h-5 w-5" /> Stop listening
           </Button>
         ) : (
-          <Button size="lg" className="h-14" onClick={start} disabled={!supported}>
+          <Button size="lg" className="h-auto min-h-12 whitespace-normal" onClick={start} disabled={!supported}>
             <Mic className="h-5 w-5" /> Start microphone
           </Button>
         )}
         {error && <p className="text-sm text-destructive">{error}</p>}
-        {listening && <p className="text-sm text-muted-foreground">Listening… {interim}</p>}
+        {listening && <p className="max-h-20 overflow-y-auto break-words text-sm text-muted-foreground" aria-live="polite">Listening… {interim}</p>}
 
         <form
-          className="flex gap-2 border-t border-border pt-5"
+          className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 border-t border-border pt-4"
           onSubmit={(e) => {
             e.preventDefault();
             if (typed.trim()) handleText(typed.trim());
@@ -213,7 +213,7 @@ export function SpeechToSign({ onTranscript, compact = false }: { onTranscript?:
           </Button>
         </form>
 
-        <div className="border-t border-border pt-5">
+        <div className="border-t border-border pt-4">
           <p className="mb-2 text-xs font-medium uppercase text-muted-foreground">Quick phrases</p>
           <div className="flex flex-wrap gap-2">
             {QUICK_PHRASES.map((phrase) => (
@@ -224,7 +224,10 @@ export function SpeechToSign({ onTranscript, compact = false }: { onTranscript?:
           </div>
         </div>
 
-        {history.length > 0 && <h3 className="border-t border-border pt-5 text-sm font-semibold">Recent translations</h3>}
+        {history.length > 0 && (
+          <details className="min-w-0 border-t border-border pt-4" open={compact ? undefined : true}>
+          <summary className="cursor-pointer text-sm font-semibold">Recent translations <span className="text-muted-foreground">({history.length})</span></summary>
+          <div className="mt-3 grid max-h-56 gap-3 overflow-y-auto">
         {history.map((h, i) => (
           <div key={i} className="border-l-2 border-primary bg-secondary/40 p-4 text-sm">
             <p className="text-muted-foreground">“{h.text}”</p>
@@ -245,11 +248,12 @@ export function SpeechToSign({ onTranscript, compact = false }: { onTranscript?:
             </div>
           </div>
         ))}
-        {history.length > 0 && (
-          <p className="text-xs text-muted-foreground">
+          </div>
+          <p className="mt-3 text-xs text-muted-foreground">
             Teal = full ASL sign (12-sign library). Amber “fs-” = fingerspelled with the ASL manual alphabet. Grammar is
             rule-based (drops articles/“be”, WH-words last) — not a complete ASL translator.
           </p>
+          </details>
         )}
       </div>
     </div>

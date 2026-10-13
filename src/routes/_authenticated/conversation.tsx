@@ -97,16 +97,17 @@ function ConversationPage() {
   };
 
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-5">
       <PageHeading category="Communication" title="Conversation" description="A shared conversation between signing and speaking participants." />
 
-      <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
+      <div className="grid items-start gap-5 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.9fr)]">
         <section className="workspace-section grid content-start gap-3" aria-label="Signing participant">
           <SectionHeading title="Sign user" detail="Camera input" />
           <SignCapture
+            compact
             onSign={(r) => setPending((p) => [...p, r])}
             footer={
-              <Button size="lg" variant="secondary" className="h-14" onClick={sendSignerTurn} disabled={!pending.length}>
+              <Button size="sm" variant="secondary" className="min-h-10" onClick={sendSignerTurn} disabled={!pending.length}>
                 Send turn
               </Button>
             }
@@ -114,7 +115,7 @@ function ConversationPage() {
           <div className="surface p-4 text-sm">
             <p className="text-muted-foreground">Pending turn</p>
             <p className="mt-1 text-lg">{pendingSentence || "—"}</p>
-            <div className="mt-2 flex flex-wrap gap-2">
+            <div className="mt-2 flex max-h-20 flex-wrap gap-2 overflow-y-auto">
               {pending.map((p, i) => (
                 <span key={i} className="rounded-full bg-secondary px-3 py-1 text-xs">
                   {SIGN_BY_ID[p.sign].label} {Math.round(p.confidence * 100)}%
@@ -127,7 +128,7 @@ function ConversationPage() {
           </div>
         </section>
 
-        <section className="workspace-section grid content-start gap-3 xl:border-l xl:border-border xl:pl-6" aria-label="Speaking participant">
+        <section className="workspace-section grid min-w-0 content-start gap-3 md:border-l md:border-border md:pl-5" aria-label="Speaking participant">
           <SectionHeading title="Speaking user" detail="Speech & text input" />
           <SpeechToSign
             compact
@@ -138,17 +139,17 @@ function ConversationPage() {
         </section>
       </div>
 
-      <section className="section-band">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-lg font-semibold">Transcript</h2>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Session {sessionId.slice(0, 8)}</span>
+      <section className="border-t border-border pt-5" aria-label="Conversation transcript">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 sm:flex sm:justify-between">
+          <h2 className="min-w-0 truncate text-lg font-semibold">Transcript</h2>
+          <div className="flex shrink-0 items-center gap-2">
+            <span className="hidden text-xs text-muted-foreground sm:inline">Session {sessionId.slice(0, 8)}</span>
             <Button size="sm" variant="outline" onClick={downloadTranscript} disabled={!transcript.length} aria-label="Download transcript">
               <Download className="h-4 w-4" /> Download
             </Button>
           </div>
         </div>
-        <ul className="mt-4 grid gap-3">
+        <ul className="mt-4 grid max-h-64 gap-3 overflow-y-auto" aria-live="polite">
           {transcript.length === 0 && <li className="text-sm text-muted-foreground">No turns yet.</li>}
           {transcript.map((entry, i) => (
             <li
@@ -169,7 +170,7 @@ function ConversationPage() {
                 </span>
               </div>
               <div className="mt-2 flex items-center justify-between gap-3">
-                <p className="text-base">{entry.content}</p>
+                <p className="min-w-0 break-words text-base">{entry.content}</p>
                 <Button size="sm" variant="ghost" aria-label="Speak this line" onClick={() => speak(entry.content)}>
                   <Volume2 className="h-4 w-4" />
                 </Button>
