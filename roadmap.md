@@ -6,3 +6,5 @@
 - [x] Organize navigation and page sections without changing application behavior.
 - [x] Verify public layouts, navigation, screen sizes and error-free compilation.
 - [ ] Verify signed-in layouts and communication controls — blocked because the current backend has no auth users.
+- [ ] Keep Conversation camera, avatar and speech controls visible together on wider screens.
+- [ ] Check Conversation layout and typed-message playback.
