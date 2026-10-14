@@ -5,6 +5,6 @@
 - [x] Verify the new controls and page rendering.
 - [x] Organize navigation and page sections without changing application behavior.
 - [x] Verify public layouts, navigation, screen sizes and error-free compilation.
-- [ ] Verify signed-in layouts and communication controls — blocked because the current backend has no auth users.
-- [ ] Keep Conversation camera, avatar and speech controls visible together on wider screens.
-- [ ] Check Conversation layout and typed-message playback.
+- [x] Verify signed-in Conversation controls with a real typed message and transcript download.
+- [x] Keep Conversation camera, avatar and speech controls visible together on wider screens.
+- [x] Check Conversation layout at 890, 1280 and 390 pixels with no horizontal overflow or runtime errors.
