@@ -4,7 +4,7 @@ import { Suspense, useLayoutEffect, useMemo, useRef } from "react";
 import { Bone, Box3, Euler, Mesh, Quaternion, SkinnedMesh, Vector3 } from "three";
 import { clone } from "three/addons/utils/SkeletonUtils.js";
 
-import humanAsset from "@/assets/signing-human.glb.asset.json";
+import humanAsset from "@/assets/user-signing-avatar.glb.asset.json";
 import { samplePose, type SampledPose, type SignClip } from "@/lib/avatarAnimations";
 
 const REST: SampledPose = {
@@ -74,20 +74,21 @@ function HumanRig({ clip, playToken, speed = 1, onFinished }: AvatarProps) {
       const elbow = side === "r" ? pose.elbow : pose.leftElbow;
       const wrist = side === "r" ? pose.wrist : [0, 0, 0];
       const curl = side === "r" ? pose.curl : pose.leftCurl;
-      scratch.upper.setFromEuler(scratch.euler.set(shoulder[0], -shoulder[1] * sign, -shoulder[2] * sign));
+      const prefix = side === "r" ? "Right" : "Left";
+      scratch.upper.setFromEuler(scratch.euler.set(shoulder[0], shoulder[1], shoulder[2]));
       scratch.target.copy(scratch.upper).multiply(scratch.flip);
-      setWorld(`upperarm_${side}`, scratch.target);
+      setWorld(`${prefix}Arm`, scratch.target);
       scratch.rotation.setFromEuler(scratch.euler.set(elbow[0], elbow[1], elbow[2]));
       scratch.lower.copy(scratch.upper).multiply(scratch.rotation);
       scratch.target.copy(scratch.lower).multiply(scratch.flip);
-      setWorld(`lowerarm_${side}`, scratch.target);
+      setWorld(`${prefix}ForeArm`, scratch.target);
       scratch.rotation.setFromEuler(scratch.euler.set(wrist[0] ?? 0, wrist[1] ?? 0, -(wrist[2] ?? 0) * sign));
       scratch.hand.copy(scratch.lower).multiply(scratch.rotation);
       scratch.target.copy(scratch.hand).multiply(scratch.flip);
-      setWorld(`hand_${side}`, scratch.target);
+      setWorld(`${prefix}Hand`, scratch.target);
       for (const [index, finger] of ["thumb", "index", "middle", "ring", "pinky"].entries()) {
         for (let joint = 1; joint <= 3; joint++) {
-          const name = `${finger}_0${joint}_${side}`;
+          const name = `${prefix}Hand${finger.charAt(0).toUpperCase()}${finger.slice(1)}${joint}`;
           const bone = bones.current.get(name);
           const base = rest.current.get(name);
           if (!bone || !base) continue;

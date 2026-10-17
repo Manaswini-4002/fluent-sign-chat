@@ -10,4 +10,4 @@
 - [x] Check Conversation layout at 890, 1280 and 390 pixels with no horizontal overflow or runtime errors.
 - [x] Source a realistically textured human model with articulated hands and suitable usage rights.
 - [ ] Connect the human model to existing signing playback and verify its appearance and motion.
-- [ ] Inspect and use the user's original GLB avatar once uploaded; waiting for the file.
+- [x] Inspect and use the user's original GLB avatar with its articulated finger skeleton.
