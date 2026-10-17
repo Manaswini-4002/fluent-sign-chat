@@ -13,3 +13,4 @@
 - Route manual and gesture emergency triggers through one countdown and delivery path to avoid divergent safety behavior.
 - Use shared PageHeading and SectionHeading components for page hierarchy so section divisions remain consistent across the app.
 - SpeechToSign compact mode is a side-by-side conversation workspace with bounded history, keeping input controls adjacent to avatar playback.
+- Clone loaded skinned avatars before applying authored signing poses; cached models must not share animated skeleton state across workspaces.

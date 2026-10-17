@@ -1,5 +1,5 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Environment, Html, Lightformer, useGLTF } from "@react-three/drei";
+import { Environment, Lightformer, useGLTF } from "@react-three/drei";
 import { Suspense, useLayoutEffect, useMemo, useRef } from "react";
 import { Bone, Box3, Euler, Mesh, Quaternion, SkinnedMesh, Vector3 } from "three";
 import { clone } from "three/addons/utils/SkeletonUtils.js";
@@ -115,7 +115,7 @@ export function SignAvatar(props: AvatarProps) {
         <Lightformer intensity={2} position={[0, 4, 3]} scale={[5, 5, 1]} />
         <Lightformer intensity={1} position={[-4, 2, 1]} rotation-y={Math.PI / 2} scale={[4, 4, 1]} />
       </Environment>
-      <Suspense fallback={<Html center><span className="whitespace-nowrap text-sm text-muted-foreground">Loading human avatar…</span></Html>}>
+      <Suspense fallback={null}>
         <HumanRig {...props} />
       </Suspense>
     </Canvas>
