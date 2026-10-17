@@ -8,5 +8,6 @@
 - [x] Verify signed-in Conversation controls with a real typed message and transcript download.
 - [x] Keep Conversation camera, avatar and speech controls visible together on wider screens.
 - [x] Check Conversation layout at 890, 1280 and 390 pixels with no horizontal overflow or runtime errors.
-- [ ] Source a realistically textured human model with articulated hands and suitable usage rights.
-- [ ] Connect the human model to existing signing playback and verify its appearance and motion.
+- [x] Source a realistically textured human model with articulated hands and suitable usage rights.
+- [x] Connect the human model to existing signing playback and verify its appearance and motion on desktop and mobile.
+- [x] Inspect and use the user's original GLB avatar with its articulated finger skeleton.
