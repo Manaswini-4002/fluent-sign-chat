@@ -11,3 +11,5 @@
 - [x] Source a realistically textured human model with articulated hands and suitable usage rights.
 - [x] Connect the human model to existing signing playback and verify its appearance and motion on desktop and mobile.
 - [x] Inspect and use the user's original GLB avatar with its articulated finger skeleton.
+- [ ] Correct avatar arm retargeting and keep both hands visible.
+- [ ] Verify one-handed and two-handed playback at desktop and phone sizes.
