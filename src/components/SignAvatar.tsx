@@ -21,6 +21,8 @@ function HumanRig({ clip, playToken, speed = 1, onFinished }: AvatarProps) {
   const model = useMemo(() => clone(scene), [scene]);
   const bones = useRef(new Map<string, Bone>());
   const rest = useRef(new Map<string, Quaternion>());
+  const worldRest = useRef(new Map<string, Quaternion>());
+  const direction = useMemo(() => ({ from: new Vector3(), to: new Vector3(), y: new Vector3(0, 1, 0), turn: new Quaternion() }), []);
   const started = useRef<number | null>(null);
   const finished = useRef(false);
   const scratch = useMemo(() => ({ parent: new Quaternion(), target: new Quaternion(), upper: new Quaternion(), lower: new Quaternion(), hand: new Quaternion(), rotation: new Quaternion(), euler: new Euler(), flip: new Quaternion().setFromEuler(new Euler(Math.PI, 0, 0)) }), []);
@@ -41,6 +43,7 @@ function HumanRig({ clip, playToken, speed = 1, onFinished }: AvatarProps) {
       if (object instanceof Bone) {
         bones.current.set(object.name, object);
         rest.current.set(object.name, object.quaternion.clone());
+        worldRest.current.set(object.name, object.getWorldQuaternion(new Quaternion()));
       }
     });
     const box = new Box3().setFromObject(model);
@@ -64,6 +67,13 @@ function HumanRig({ clip, playToken, speed = 1, onFinished }: AvatarProps) {
     const setWorld = (name: string, world: Quaternion) => {
       const bone = bones.current.get(name);
       if (!bone?.parent) return;
+      const base = worldRest.current.get(name);
+      if (base) {
+        direction.from.copy(direction.y).applyQuaternion(base);
+        direction.to.copy(direction.y).applyQuaternion(world);
+        direction.turn.setFromUnitVectors(direction.from, direction.to);
+        world.copy(direction.turn).multiply(base);
+      }
       bone.parent.getWorldQuaternion(scratch.parent);
       bone.quaternion.copy(scratch.parent.invert()).multiply(world);
       bone.updateMatrixWorld(true);
