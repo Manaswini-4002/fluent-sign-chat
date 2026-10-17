@@ -8,9 +8,9 @@ import humanAsset from "@/assets/user-signing-avatar.glb.asset.json";
 import { samplePose, type SampledPose, type SignClip } from "@/lib/avatarAnimations";
 
 const REST: SampledPose = {
-  shoulder: [0.1, 0, 0.12], elbow: [0.15, 0, 0], wrist: [0, 0, 0],
+  shoulder: [-0.1, 0, 0.12], elbow: [-0.15, 0, 0], wrist: [0, 0, 0],
   curl: [0.15, 0.15, 0.15, 0.15, 0.15],
-  leftShoulder: [0.1, 0, -0.12], leftElbow: [0.15, 0, 0],
+  leftShoulder: [-0.1, 0, -0.12], leftElbow: [-0.15, 0, 0],
   leftCurl: [0.15, 0.15, 0.15, 0.15, 0.15], spread: 0.3, thumb: 0.2,
 };
 
@@ -75,10 +75,10 @@ function HumanRig({ clip, playToken, speed = 1, onFinished }: AvatarProps) {
       const wrist = side === "r" ? pose.wrist : [0, 0, 0];
       const curl = side === "r" ? pose.curl : pose.leftCurl;
       const prefix = side === "r" ? "Right" : "Left";
-      scratch.upper.setFromEuler(scratch.euler.set(shoulder[0], shoulder[1], shoulder[2]));
+      scratch.upper.setFromEuler(scratch.euler.set(-Math.abs(shoulder[0]), shoulder[1], shoulder[2]));
       scratch.target.copy(scratch.upper).multiply(scratch.flip);
       setWorld(`${prefix}Arm`, scratch.target);
-      scratch.rotation.setFromEuler(scratch.euler.set(elbow[0], elbow[1], elbow[2]));
+      scratch.rotation.setFromEuler(scratch.euler.set(-Math.abs(elbow[0]), elbow[1], elbow[2]));
       scratch.lower.copy(scratch.upper).multiply(scratch.rotation);
       scratch.target.copy(scratch.lower).multiply(scratch.flip);
       setWorld(`${prefix}ForeArm`, scratch.target);
@@ -108,7 +108,7 @@ function HumanRig({ clip, playToken, speed = 1, onFinished }: AvatarProps) {
 
 export function SignAvatar(props: AvatarProps) {
   return (
-    <Canvas camera={{ position: [0, 1.18, 2.8], fov: 32 }} dpr={[1, 1.5]} gl={{ alpha: true, antialias: true }} onCreated={({ camera }) => camera.lookAt(0, 1.18, 0)}>
+    <Canvas camera={{ position: [0, 1.28, 2.8], fov: 39 }} dpr={[1, 1.5]} gl={{ alpha: true, antialias: true }} onCreated={({ camera }) => camera.lookAt(0, 1.28, 0)}>
       <ambientLight intensity={0.65} />
       <directionalLight position={[2, 3, 4]} intensity={2} />
       <directionalLight position={[-3, 2, 3]} intensity={0.8} />
