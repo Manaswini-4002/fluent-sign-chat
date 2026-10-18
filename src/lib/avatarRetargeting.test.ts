@@ -1,5 +1,5 @@
-/// <reference types="bun" />
-import { describe, expect, test } from "bun:test";
+import { describe, test } from "node:test";
+import assert from "node:assert/strict";
 import { Vector3 } from "three";
 import { solveElbow } from "./avatarRetargeting";
 import { samplePose, SIGN_CLIPS } from "./avatarAnimations";
@@ -10,16 +10,16 @@ describe("avatar hand retargeting", () => {
       const shoulder = new Vector3(side * 0.18, 1.5, 0);
       const target = new Vector3(side * 0.015, 1.2, 0.35);
       const elbow = solveElbow(shoulder, target, 0.28, 0.25, side);
-      expect(elbow.distanceTo(shoulder)).toBeCloseTo(0.28, 6);
-      expect(elbow.distanceTo(target)).toBeCloseTo(0.25, 6);
+      assert.ok(Math.abs(elbow.distanceTo(shoulder) - 0.28) < 1e-6);
+      assert.ok(Math.abs(elbow.distanceTo(target) - 0.25) < 1e-6);
     }
   });
   test("one-hand signs do not copy their wrist and finger spread to the other hand", () => {
     const clip = SIGN_CLIPS.WHERE;
     if (!clip) throw new Error("Missing WHERE clip");
     const pose = samplePose(clip, 0.4);
-    expect(pose.leftWrist).toEqual([0, 0, 0]);
-    expect(pose.leftSpread).toBe(0.15);
-    expect(pose.wrist).not.toEqual(pose.leftWrist);
+    assert.deepEqual(pose.leftWrist, [0, 0, 0]);
+    assert.equal(pose.leftSpread, 0.15);
+    assert.notDeepEqual(pose.wrist, pose.leftWrist);
   });
 });
