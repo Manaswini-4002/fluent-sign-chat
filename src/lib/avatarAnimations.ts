@@ -20,7 +20,10 @@ export interface Keyframe {
   /** optional left arm (used by two-handed signs) */
   leftShoulder?: [number, number, number];
   leftElbow?: [number, number, number];
+  leftWrist?: [number, number, number];
   leftCurl?: [number, number, number, number, number];
+  leftSpread?: number;
+  leftThumb?: number;
   /** finger splay 0 (together) .. 1 (spread) */
   spread?: number;
   /** thumb position 0 (out to the side) .. 1 (tucked across the palm) */
@@ -39,10 +42,10 @@ const V: Keyframe["curl"] = [1, 0, 0, 1, 1];
 const W: Keyframe["curl"] = [1, 0, 0, 0, 1];
 const PINCH: Keyframe["curl"] = [0.75, 0.75, 0.75, 0.8, 0.85];
 
-const REST: Keyframe = {
+export const REST: Keyframe = {
   t: 0,
   shoulder: [0.1, 0, 0.12],
-  elbow: [0.15, 0, 0],
+  elbow: [-0.8, 0, 0],
   wrist: [0, 0, 0],
   curl: [0.15, 0.15, 0.15, 0.15, 0.15],
 };
@@ -109,11 +112,13 @@ export const SIGN_CLIPS: Partial<Record<SignId, SignClip>> = {
         leftShoulder: [-1.25, -0.25, -0.4],
         leftElbow: [-1.2, 0, 0],
         leftCurl: OPEN,
+        leftWrist: [1.5, 0, 0], leftSpread: 0, leftThumb: 0,
       }),
       f(1.4, [-1.85, 0.25, 0.35], [-1.15, 0, 0], [0, 0, 0], FIST, {
         leftShoulder: [-1.45, -0.25, -0.4],
         leftElbow: [-1.2, 0, 0],
         leftCurl: OPEN,
+        leftWrist: [1.5, 0, 0], leftSpread: 0, leftThumb: 0,
       }),
       { ...REST, t: 2.2 },
     ],
@@ -122,8 +127,9 @@ export const SIGN_CLIPS: Partial<Record<SignId, SignClip>> = {
     duration: 1.8,
     frames: [
       REST,
-      f(0.5, [-2.15, 0, 0.25], [-0.5, 0, 0], [0, 0, 0], OPEN),
-      f(1.3, [-2.15, 0, 0.25], [-0.5, 0, 0], [0, 0, 0], OPEN),
+      f(0.5, [-1.65, 0, 0.25], [-1.0, 0, 0], [0, 0, 0.9], OPEN, { leftShoulder: [-1.25, -0.25, -0.4], leftElbow: [-1.2, 0, 0], leftCurl: OPEN, leftWrist: [1.5, 0, 0], leftSpread: 0, leftThumb: 0 }),
+      f(0.95, [-1.25, 0, 0.25], [-1.0, 0, 0], [0, 0, 0.9], OPEN, { leftShoulder: [-1.25, -0.25, -0.4], leftElbow: [-1.2, 0, 0], leftCurl: OPEN, leftWrist: [1.5, 0, 0], leftSpread: 0, leftThumb: 0 }),
+      f(1.3, [-1.25, 0, 0.25], [-1.0, 0, 0], [0, 0, 0.9], OPEN, { leftShoulder: [-1.25, -0.25, -0.4], leftElbow: [-1.2, 0, 0], leftCurl: OPEN, leftWrist: [1.5, 0, 0], leftSpread: 0, leftThumb: 0 }),
       { ...REST, t: 1.8 },
     ],
   },
@@ -208,21 +214,24 @@ export interface SampledPose {
   curl: [number, number, number, number, number];
   leftShoulder: [number, number, number];
   leftElbow: [number, number, number];
+  leftWrist: [number, number, number];
   leftCurl: [number, number, number, number, number];
+  leftSpread: number;
+  leftThumb: number;
   spread: number;
   thumb: number;
 }
 
 const REST_LEFT_SHOULDER: [number, number, number] = [0.1, 0, -0.12];
-const REST_LEFT_ELBOW: [number, number, number] = [0.15, 0, 0];
+const REST_LEFT_ELBOW: [number, number, number] = [-0.8, 0, 0];
 
 export function samplePose(clip: SignClip, time: number): SampledPose {
   const frames = clip.frames;
   const t = Math.min(time, clip.duration);
   let i = 0;
   while (i < frames.length - 2 && (frames[i + 1]?.t ?? Infinity) < t) i++;
-  const a = frames[i]!;
-  const b = frames[Math.min(i + 1, frames.length - 1)]!;
+  const a = frames[i] ?? REST;
+  const b = frames[Math.min(i + 1, frames.length - 1)] ?? a;
   const span = Math.max(b.t - a.t, 1e-3);
   const raw = Math.min(Math.max((t - a.t) / span, 0), 1);
   const k = raw * raw * (3 - 2 * raw); // smoothstep
@@ -234,6 +243,9 @@ export function samplePose(clip: SignClip, time: number): SampledPose {
     curl: lerpTuple(a.curl, b.curl, k),
     leftShoulder: lerpTuple(a.leftShoulder ?? REST_LEFT_SHOULDER, b.leftShoulder ?? REST_LEFT_SHOULDER, k),
     leftElbow: lerpTuple(a.leftElbow ?? REST_LEFT_ELBOW, b.leftElbow ?? REST_LEFT_ELBOW, k),
+    leftWrist: lerpTuple(a.leftWrist ?? [0, 0, 0], b.leftWrist ?? [0, 0, 0], k),
+    leftSpread: lerp(a.leftSpread ?? 0.15, b.leftSpread ?? 0.15, k),
+    leftThumb: lerp(a.leftThumb ?? 0.2, b.leftThumb ?? 0.2, k),
     spread: lerp(a.spread ?? 0.35, b.spread ?? 0.35, k),
     thumb: lerp(a.thumb ?? 0.2, b.thumb ?? 0.2, k),
     leftCurl: lerpTuple(a.leftCurl ?? [0.15, 0.15, 0.15, 0.15, 0.15], b.leftCurl ?? [0.15, 0.15, 0.15, 0.15, 0.15], k),

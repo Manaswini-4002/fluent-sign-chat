@@ -8,7 +8,7 @@
  * wrist orientation). R (crossed fingers) and T/M/N (thumb between fingers)
  * are approximated because the rig can't cross or interleave fingers.
  */
-import type { Keyframe, SignClip } from "./avatarAnimations";
+import { REST, type Keyframe, type SignClip } from "./avatarAnimations";
 
 type Curl = Keyframe["curl"];
 type V3 = [number, number, number];
@@ -93,7 +93,7 @@ export function buildFingerspellClip(word: string): { clip: SignClip; letters: {
   const chars = word.toUpperCase().split("").filter((c) => ALPHABET[c]);
   if (chars.length === 0) return null;
   const frames: Keyframe[] = [
-    { t: 0, shoulder: [0.1, 0, 0.12], elbow: [0.15, 0, 0], wrist: [0, 0, 0], curl: REST_CURL },
+    { ...REST, t: 0 },
   ];
   const letters: { ch: string; t: number }[] = [];
   let t = 0.35;
@@ -114,6 +114,6 @@ export function buildFingerspellClip(word: string): { clip: SignClip; letters: {
     t += LETTER_HOLD + TRANSITION;
     prev = ch;
   }
-  frames.push({ t: t + 0.25, shoulder: [0.1, 0, 0.12], elbow: [0.15, 0, 0], wrist: [0, 0, 0], curl: REST_CURL });
+  frames.push({ ...REST, t: t + 0.25 });
   return { clip: { duration: t + 0.25, frames }, letters };
 }
