@@ -5,14 +5,9 @@ import { Bone, Box3, Euler, Mesh, Quaternion, SkinnedMesh, Vector3 } from "three
 import { clone } from "three/addons/utils/SkeletonUtils.js";
 
 import humanAsset from "@/assets/user-signing-avatar.glb.asset.json";
-import { samplePose, type SampledPose, type SignClip } from "@/lib/avatarAnimations";
+import { REST, samplePose, type SignClip } from "@/lib/avatarAnimations";
 
-const REST: SampledPose = {
-  shoulder: [-0.1, 0, 0.12], elbow: [-0.15, 0, 0], wrist: [0, 0, 0],
-  curl: [0.15, 0.15, 0.15, 0.15, 0.15],
-  leftShoulder: [-0.1, 0, -0.12], leftElbow: [-0.15, 0, 0],
-  leftCurl: [0.15, 0.15, 0.15, 0.15, 0.15], spread: 0.3, thumb: 0.2,
-};
+const IDLE_CLIP: SignClip = { duration: 1, frames: [REST, { ...REST, t: 1 }] };
 
 type AvatarProps = { clip: SignClip | null; playToken: number; speed?: number; onFinished?: (() => void) | undefined };
 
@@ -21,8 +16,6 @@ function HumanRig({ clip, playToken, speed = 1, onFinished }: AvatarProps) {
   const model = useMemo(() => clone(scene), [scene]);
   const bones = useRef(new Map<string, Bone>());
   const rest = useRef(new Map<string, Quaternion>());
-  const worldRest = useRef(new Map<string, Quaternion>());
-  const direction = useMemo(() => ({ from: new Vector3(), to: new Vector3(), y: new Vector3(0, 1, 0), turn: new Quaternion() }), []);
   const started = useRef<number | null>(null);
   const finished = useRef(false);
   const scratch = useMemo(() => ({ parent: new Quaternion(), target: new Quaternion(), upper: new Quaternion(), lower: new Quaternion(), hand: new Quaternion(), rotation: new Quaternion(), euler: new Euler(), flip: new Quaternion().setFromEuler(new Euler(Math.PI, 0, 0)) }), []);
@@ -43,7 +36,6 @@ function HumanRig({ clip, playToken, speed = 1, onFinished }: AvatarProps) {
       if (object instanceof Bone) {
         bones.current.set(object.name, object);
         rest.current.set(object.name, object.quaternion.clone());
-        worldRest.current.set(object.name, object.getWorldQuaternion(new Quaternion()));
       }
     });
     const box = new Box3().setFromObject(model);
@@ -60,35 +52,33 @@ function HumanRig({ clip, playToken, speed = 1, onFinished }: AvatarProps) {
 
   useLayoutEffect(() => { started.current = null; finished.current = false; }, [playToken, clip]);
 
-  useFrame(({ clock }) => {
+  useFrame(({ clock }, delta) => {
     if (started.current === null) started.current = clock.elapsedTime;
     const time = (clock.elapsedTime - started.current) * speed;
-    const pose = clip ? samplePose(clip, time) : REST;
+    const pose = samplePose(clip ?? IDLE_CLIP, clip ? time : 0);
     const setWorld = (name: string, world: Quaternion) => {
       const bone = bones.current.get(name);
       if (!bone?.parent) return;
-      const base = worldRest.current.get(name);
-      if (base) {
-        direction.from.copy(direction.y).applyQuaternion(base);
-        direction.to.copy(direction.y).applyQuaternion(world);
-        direction.turn.setFromUnitVectors(direction.from, direction.to);
-        world.copy(direction.turn).multiply(base);
-      }
       bone.parent.getWorldQuaternion(scratch.parent);
-      bone.quaternion.copy(scratch.parent.invert()).multiply(world);
+      scratch.parent.invert().multiply(world);
+      bone.quaternion.slerp(scratch.parent, 1 - Math.exp(-18 * Math.min(delta, 0.05)));
       bone.updateMatrixWorld(true);
     };
     for (const side of ["r", "l"] as const) {
       const sign = side === "r" ? 1 : -1;
       const shoulder = side === "r" ? pose.shoulder : pose.leftShoulder;
       const elbow = side === "r" ? pose.elbow : pose.leftElbow;
-      const wrist = side === "r" ? pose.wrist : [0, 0, 0];
+      const wrist = side === "r" ? pose.wrist : pose.leftWrist;
       const curl = side === "r" ? pose.curl : pose.leftCurl;
       const prefix = side === "r" ? "Right" : "Left";
-      scratch.upper.setFromEuler(scratch.euler.set(-Math.abs(shoulder[0]), shoulder[1], shoulder[2]));
+      // Legacy clips raised the entire arm overhead. Keep the upper arm low,
+      // with the forearm carrying the hand into the signing space instead.
+      const upperAngle = Math.min(Math.abs(shoulder[0]) * 0.3, 0.8);
+      const forearmAngle = Math.min(Math.abs(shoulder[0]) + Math.abs(elbow[0]), 2.95);
+      scratch.upper.setFromEuler(scratch.euler.set(-upperAngle, shoulder[1], -shoulder[2]));
       scratch.target.copy(scratch.upper).multiply(scratch.flip);
       setWorld(`${prefix}Arm`, scratch.target);
-      scratch.rotation.setFromEuler(scratch.euler.set(-Math.abs(elbow[0]), elbow[1], elbow[2]));
+      scratch.rotation.setFromEuler(scratch.euler.set(-(forearmAngle - upperAngle), elbow[1], elbow[2]));
       scratch.lower.copy(scratch.upper).multiply(scratch.rotation);
       scratch.target.copy(scratch.lower).multiply(scratch.flip);
       setWorld(`${prefix}ForeArm`, scratch.target);
@@ -102,8 +92,10 @@ function HumanRig({ clip, playToken, speed = 1, onFinished }: AvatarProps) {
           const bone = bones.current.get(name);
           const base = rest.current.get(name);
           if (!bone || !base) continue;
-          const spread = joint === 1 && index > 0 ? (index - 2.5) * pose.spread * 0.13 * sign : 0;
-          scratch.rotation.setFromEuler(scratch.euler.set(-(curl[index] ?? 0) * (joint === 1 ? 1.15 : 1.3), finger === "thumb" && joint === 1 ? pose.thumb * sign * 0.65 : 0, spread));
+          const handSpread = side === "r" ? pose.spread : pose.leftSpread;
+          const handThumb = side === "r" ? pose.thumb : pose.leftThumb;
+          const spread = joint === 1 && index > 0 ? (index - 2.5) * handSpread * 0.13 * sign : 0;
+          scratch.rotation.setFromEuler(scratch.euler.set(-(curl[index] ?? 0) * (joint === 1 ? 1.05 : 1.15), finger === "thumb" && joint === 1 ? handThumb * sign * 0.65 : 0, spread));
           bone.quaternion.copy(base).multiply(scratch.rotation);
         }
       }
@@ -118,7 +110,7 @@ function HumanRig({ clip, playToken, speed = 1, onFinished }: AvatarProps) {
 
 export function SignAvatar(props: AvatarProps) {
   return (
-    <Canvas camera={{ position: [0, 1.28, 2.8], fov: 39 }} dpr={[1, 1.5]} gl={{ alpha: true, antialias: true }} onCreated={({ camera }) => camera.lookAt(0, 1.28, 0)}>
+    <Canvas camera={{ position: [0, 1.36, 2.25], fov: 34 }} dpr={[1, 1.5]} gl={{ alpha: true, antialias: true }} onCreated={({ camera }) => camera.lookAt(0, 1.36, 0)}>
       <ambientLight intensity={0.65} />
       <directionalLight position={[2, 3, 4]} intensity={2} />
       <directionalLight position={[-3, 2, 3]} intensity={0.8} />

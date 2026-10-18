@@ -14,3 +14,4 @@
 - Use shared PageHeading and SectionHeading components for page hierarchy so section divisions remain consistent across the app.
 - SpeechToSign compact mode is a side-by-side conversation workspace with bounded history, keeping input controls adjacent to avatar playback.
 - Clone loaded skinned avatars before applying authored signing poses; cached models must not share animated skeleton state across workspaces.
+- Retarget the uploaded avatar with full world-space joint rotations and independent left-hand channels so palm twist is preserved and fingerspelling cannot alter the supporting hand.
