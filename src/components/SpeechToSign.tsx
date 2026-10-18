@@ -137,8 +137,9 @@ export function SpeechToSign({ onTranscript, compact = false }: { onTranscript?:
               />
             </Suspense>
           </ClientOnly>
+        </div>
           {current && (
-            <div className="pointer-events-none absolute inset-x-0 bottom-3 flex flex-col items-center gap-1">
+            <div className="pointer-events-none flex flex-col items-center gap-1 px-3 py-2">
               <span className="rounded-full bg-background/80 px-4 py-1 text-xs font-medium uppercase tracking-widest text-muted-foreground">
                 {current.item.kind === "sign" ? "ASL sign" : "Fingerspelling"}
               </span>
@@ -153,7 +154,6 @@ export function SpeechToSign({ onTranscript, compact = false }: { onTranscript?:
               </span>
             </div>
           )}
-        </div>
         <div className="grid gap-3 border-t border-border p-4 text-sm">
           {current ? (
             <p>

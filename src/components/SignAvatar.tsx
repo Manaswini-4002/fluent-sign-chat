@@ -57,12 +57,12 @@ function HumanRig({ clip, playToken, speed = 1, onFinished }: AvatarProps) {
     if (started.current === null) started.current = clock.elapsedTime;
     const time = (clock.elapsedTime - started.current) * speed;
     const pose = samplePose(clip ?? IDLE_CLIP, clip ? time : 0);
-    const setWorld = (name: string, world: Quaternion) => {
+    const setWorld = (name: string, world: Quaternion, exact = false) => {
       const bone = bones.current.get(name);
       if (!bone?.parent) return;
       bone.parent.getWorldQuaternion(scratch.parent);
       scratch.parent.invert().multiply(world);
-      bone.quaternion.slerp(scratch.parent, 1 - Math.exp(-18 * Math.min(delta, 0.05)));
+      bone.quaternion.slerp(scratch.parent, exact ? 1 : 1 - Math.exp(-18 * Math.min(delta, 0.05)));
       bone.updateMatrixWorld(true);
     };
     for (const side of ["r", "l"] as const) {
@@ -119,11 +119,11 @@ function HumanRig({ clip, playToken, speed = 1, onFinished }: AvatarProps) {
         const target = new Vector3(right ? -0.015 : 0.015, (right ? 1.22 : 1.12) + lift + stroke, 0.35);
         target.lerpVectors(palm, target, blend);
         const joint = solveElbow(shoulder, target, shoulder.distanceTo(elbow), elbow.distanceTo(palm), right ? -1 : 1);
-        setWorld(`${side}Arm`, directionRotation(shoulder, joint));
-        setWorld(`${side}ForeArm`, directionRotation(joint, target));
+        setWorld(`${side}Arm`, directionRotation(shoulder, joint), true);
+        setWorld(`${side}ForeArm`, directionRotation(joint, target), true);
         // The support palm faces up; the dominant fist/open hand faces inward.
-        const handRotation = new Quaternion().setFromEuler(new Euler(right ? 0 : Math.PI / 2, 0, right ? Math.PI / 2 : -Math.PI / 2));
-        setWorld(`${side}Hand`, handRotation);
+        const handRotation = new Quaternion().setFromEuler(new Euler(right ? 0 : -Math.PI / 2, 0, right ? 0 : -Math.PI / 2));
+        setWorld(`${side}Hand`, handRotation, true);
       }
     }
     if (clip && time >= clip.duration && !finished.current) {
