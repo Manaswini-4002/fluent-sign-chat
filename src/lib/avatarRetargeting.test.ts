@@ -1,3 +1,4 @@
+/// <reference types="bun" />
 import { describe, expect, test } from "bun:test";
 import { Vector3 } from "three";
 import { solveElbow } from "./avatarRetargeting";
