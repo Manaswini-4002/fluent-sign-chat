@@ -5,7 +5,8 @@ import { Bone, Box3, Euler, Mesh, Quaternion, SkinnedMesh, Vector3 } from "three
 import { clone } from "three/addons/utils/SkeletonUtils.js";
 
 import humanAsset from "@/assets/user-signing-avatar.glb.asset.json";
-import { REST, samplePose, type SignClip } from "@/lib/avatarAnimations";
+import { REST, SIGN_CLIPS, samplePose, type SignClip } from "@/lib/avatarAnimations";
+import { directionRotation, solveElbow } from "@/lib/avatarRetargeting";
 
 const IDLE_CLIP: SignClip = { duration: 1, frames: [REST, { ...REST, t: 1 }] };
 
@@ -95,9 +96,34 @@ function HumanRig({ clip, playToken, speed = 1, onFinished }: AvatarProps) {
           const handSpread = side === "r" ? pose.spread : pose.leftSpread;
           const handThumb = side === "r" ? pose.thumb : pose.leftThumb;
           const spread = joint === 1 && index > 0 ? (index - 2.5) * handSpread * 0.13 * sign : 0;
-          scratch.rotation.setFromEuler(scratch.euler.set(-(curl[index] ?? 0) * (joint === 1 ? 1.05 : 1.15), finger === "thumb" && joint === 1 ? handThumb * sign * 0.65 : 0, spread));
+          scratch.rotation.setFromEuler(scratch.euler.set((curl[index] ?? 0) * (joint === 1 ? 1.05 : 1.15), finger === "thumb" && joint === 1 ? handThumb * sign * 0.65 : 0, spread));
           bone.quaternion.copy(base).multiply(scratch.rotation);
         }
+      }
+    }
+    if (clip === SIGN_CLIPS.HELP || clip === SIGN_CLIPS.STOP) {
+      const progress = Math.min(1, time / 0.45, Math.max(0, (clip.duration - time) / 0.4));
+      const blend = progress * progress * (3 - 2 * progress);
+      const lift = clip === SIGN_CLIPS.HELP ? Math.sin(Math.min(time / clip.duration, 1) * Math.PI) * 0.12 : 0;
+      for (const side of ["Right", "Left"] as const) {
+        const arm = bones.current.get(`${side}Arm`);
+        const forearm = bones.current.get(`${side}ForeArm`);
+        const hand = bones.current.get(`${side}Hand`);
+        if (!arm || !forearm || !hand) continue;
+        model.updateMatrixWorld(true);
+        const shoulder = arm.getWorldPosition(new Vector3());
+        const elbow = forearm.getWorldPosition(new Vector3());
+        const palm = hand.getWorldPosition(new Vector3());
+        const right = side === "Right";
+        const stroke = clip === SIGN_CLIPS.STOP && right ? Math.max(0, 1 - (time - 0.5) / 0.45) * 0.18 : 0;
+        const target = new Vector3(right ? -0.015 : 0.015, (right ? 1.22 : 1.12) + lift + stroke, 0.35);
+        target.lerpVectors(palm, target, blend);
+        const joint = solveElbow(shoulder, target, shoulder.distanceTo(elbow), elbow.distanceTo(palm), right ? -1 : 1);
+        setWorld(`${side}Arm`, directionRotation(shoulder, joint));
+        setWorld(`${side}ForeArm`, directionRotation(joint, target));
+        // The support palm faces up; the dominant fist/open hand faces inward.
+        const handRotation = new Quaternion().setFromEuler(new Euler(right ? 0 : Math.PI / 2, 0, right ? Math.PI / 2 : -Math.PI / 2));
+        setWorld(`${side}Hand`, handRotation);
       }
     }
     if (clip && time >= clip.duration && !finished.current) {
