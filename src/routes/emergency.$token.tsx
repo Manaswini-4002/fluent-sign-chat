@@ -29,10 +29,10 @@ function SharedEmergency() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["shared-emergency", token],
     queryFn: async () => {
+      // Signed-out visitors read only the single row their share token
+      // points to, via a security definer RPC; direct table reads are closed.
       const { data, error } = await supabase
-        .from("emergency_events")
-        .select("created_at, trigger_type, gesture, latitude, longitude, accuracy_m, location_error, message, resolved")
-        .eq("share_token", token)
+        .rpc("get_shared_emergency_event", { p_share_token: token })
         .maybeSingle();
       if (error) throw error;
       return data;
