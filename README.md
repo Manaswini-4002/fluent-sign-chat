@@ -55,6 +55,24 @@ React 19 + TypeScript + Vite (TanStack Start), Tailwind CSS v4, Lovable Cloud (P
 
 Add `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER` (SMS) and/or `RESEND_API_KEY`, `EMERGENCY_FROM_EMAIL` (email) as server secrets. The emergency page shows which providers are configured; with none, alerts are recorded and shareable but explicitly not sent.
 
+### Install on a phone (home-screen app)
+
+The app is an installable web app (PWA manifest, no offline cache):
+
+- Android Chrome: open the published URL → menu (⋮) → **Add to Home screen** → an app icon launches it fullscreen.
+- iPhone Safari: Share → **Add to Home Screen**.
+
+### Building the Android app (APK)
+
+The project contains a Capacitor Android shell (`android/`, config in `capacitor.config.ts`). The WebView loads the published app URL, so server-side features (emergency alerts) keep working; camera, microphone and location permissions are declared in `android/app/src/main/AndroidManifest.xml` and requested at runtime.
+
+1. Install [Android Studio](https://developer.android.com/studio) on your computer.
+2. Clone/copy this project, then `bun install && bunx cap sync android`.
+3. `bunx cap open android` (or open the `android/` folder in Android Studio).
+4. **Build → Build App Bundle(s)/APK(s) → Build APK(s)**. Install the debug APK on a phone, or generate a signed APK for Play Store distribution.
+
+The published web app must stay live — the Android app is a native window around it.
+
 ## Demos
 
 - **Camera demo:** `/translate` → Start camera → hold an open palm still (STOP), wave it (HELLO), point (YOU) → Speak.
