@@ -154,7 +154,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_shared_emergency_event: {
+        Args: { p_share_token: string }
+        Returns: {
+          accuracy_m: number
+          created_at: string
+          gesture: string
+          latitude: number
+          location_error: string
+          longitude: number
+          message: string
+          resolved: boolean
+          trigger_type: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

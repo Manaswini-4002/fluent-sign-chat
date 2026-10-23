@@ -8,6 +8,13 @@
       "when": 1790239308768,
       "tag": "0000_signbridge_core",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792729423763,
+      "tag": "0001_token_gated_shared_event_read",
+      "breakpoints": true
     }
   ]
 }
