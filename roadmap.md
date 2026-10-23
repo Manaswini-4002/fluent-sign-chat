@@ -13,3 +13,6 @@
 - [x] Inspect and use the user's original GLB avatar with its articulated finger skeleton.
 - [x] Correct avatar arm retargeting and keep both hands visible.
 - [x] Verify one-handed and two-handed playback at desktop and phone sizes.
+- [x] Make the web app installable on a phone home screen (manifest, icons, theme color).
+- [x] Create the Capacitor Android shell with camera, microphone and location permissions.
+- [ ] Build and install the APK on an Android phone (needs Android Studio on the user's computer).
